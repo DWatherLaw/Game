@@ -39,10 +39,19 @@ stamina_regen_rate = 20  # Stamina pro Sekunde bei Regeneration
 is_sprinting = False
 sprint_speed_multiplier = 2.0
 
+# HP-System
+max_hp = 100
+current_hp = max_hp
+
 # Stamina-Leiste UI
 stamina_bar_bg = Entity(model='cube', color=color.dark_gray, scale=(0.3, 0.03, 1), position=(0.6, -0.4, 0), parent=camera.ui)
 stamina_bar = Entity(model='cube', color=color.blue, scale=(0.3, 0.03, 1), position=(0.6, -0.4, -0.01), parent=camera.ui)
 stamina_text = Text('STAMINA', position=(0.45, -0.35, -0.02), scale=1, color=color.white, parent=camera.ui)
+
+# HP-Leiste UI
+hp_bar_bg = Entity(model='cube', color=color.dark_gray, scale=(0.3, 0.03, 1), position=(-0.6, -0.4, 0), parent=camera.ui)
+hp_bar = Entity(model='cube', color=color.red, scale=(0.3, 0.03, 1), position=(-0.6, -0.4, -0.01), parent=camera.ui)
+hp_text = Text('HP', position=(-0.75, -0.35, -0.02), scale=1, color=color.white, parent=camera.ui)
 
 # Zielscheiben-Klasse (Bogenschießziel)
 class Target(Entity):
@@ -221,6 +230,13 @@ def update():
     
     # Stamina-Leiste bleibt immer blau
     stamina_bar.color = color.blue
+    
+    # HP-Leiste aktualisieren
+    hp_percentage = current_hp / max_hp
+    hp_bar.scale_x = 0.3 * hp_percentage
+    
+    # Position des roten Balkens anpassen, damit er links am Hintergrund ausgerichtet ist
+    hp_bar.x = -0.6 - (0.3 * (1 - hp_percentage)) / 2
 
 # Eingabe-Funktion für Schießen
 def input(key):
