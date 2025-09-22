@@ -36,7 +36,7 @@ class Target(Entity):
     def __init__(self, position, **kwargs):
         super().__init__(
             model='cube',
-            scale=(2.4, 0.1, 2.4),
+            scale=(2.4, 2.4, 0.1),
             position=position,
             collider='box',
             color=color.white,
@@ -47,7 +47,7 @@ class Target(Entity):
         self.ring2 = Entity(
             model='cube',
             color=color.red,
-            scale=(0.83, 1.1, 0.83),
+            scale=(0.83, 0.83, 1.1),
             position=(0, 0, 0),
             parent=self
         )
@@ -56,7 +56,7 @@ class Target(Entity):
         self.ring3 = Entity(
             model='cube',
             color=color.white,
-            scale=(0.67, 1.2, 0.67),
+            scale=(0.67, 0.67, 1.2),
             position=(0, 0, 0),
             parent=self
         )
@@ -65,7 +65,7 @@ class Target(Entity):
         self.ring4 = Entity(
             model='cube',
             color=color.red,
-            scale=(0.5, 1.3, 0.5),
+            scale=(0.5, 0.5, 1.3),
             position=(0, 0, 0),
             parent=self
         )
@@ -74,7 +74,7 @@ class Target(Entity):
         self.ring5 = Entity(
             model='cube',
             color=color.white,
-            scale=(0.33, 1.4, 0.33),
+            scale=(0.33, 0.33, 1.4),
             position=(0, 0, 0),
             parent=self
         )
@@ -83,7 +83,7 @@ class Target(Entity):
         self.bullseye = Entity(
             model='cube',
             color=color.red,
-            scale=(0.17, 1.5, 0.17),
+            scale=(0.17, 0.17, 1.5),
             position=(0, 0, 0),
             parent=self
         )
