@@ -31,14 +31,79 @@ player = FirstPersonController(position=(0, 1, 0))
 paused = False
 pause_text = None
 
-# Ziele erstellen (5-10 Ziele an zufälligen Positionen)
+# Zielscheiben-Klasse (Bogenschießziel)
+class Target(Entity):
+    def __init__(self, position, **kwargs):
+        super().__init__(
+            model='cylinder',
+            scale=(1.2, 0.05, 1.2),
+            position=position,
+            collider='box',
+            **kwargs
+        )
+        
+        # Ring 1 (äußerster - weiß)
+        self.ring1 = Entity(
+            model='cylinder',
+            color=color.white,
+            scale=(1.2, 0.06, 1.2),
+            position=position,
+            parent=self
+        )
+        
+        # Ring 2 (rot)
+        self.ring2 = Entity(
+            model='cylinder',
+            color=color.red,
+            scale=(1.0, 0.07, 1.0),
+            position=position,
+            parent=self
+        )
+        
+        # Ring 3 (weiß)
+        self.ring3 = Entity(
+            model='cylinder',
+            color=color.white,
+            scale=(0.8, 0.08, 0.8),
+            position=position,
+            parent=self
+        )
+        
+        # Ring 4 (rot)
+        self.ring4 = Entity(
+            model='cylinder',
+            color=color.red,
+            scale=(0.6, 0.09, 0.6),
+            position=position,
+            parent=self
+        )
+        
+        # Ring 5 (weiß)
+        self.ring5 = Entity(
+            model='cylinder',
+            color=color.white,
+            scale=(0.4, 0.10, 0.4),
+            position=position,
+            parent=self
+        )
+        
+        # Bullseye (rot)
+        self.bullseye = Entity(
+            model='cylinder',
+            color=color.red,
+            scale=(0.2, 0.11, 0.2),
+            position=position,
+            parent=self
+        )
+
+# Ziele erstellen (5-10 Zielscheiben an zufälligen Positionen)
 targets = []
 for i in range(7):
     x = random.uniform(-arena_size + 2, arena_size - 2)
     z = random.uniform(-arena_size + 2, arena_size - 2)
     y = random.uniform(1, 4)
     
-    target = Entity(model='cube', color=color.red, position=(x, y, z), collider='box')
+    target = Target(position=(x, y, z))
     targets.append(target)
 
 # Kugel-Klasse
