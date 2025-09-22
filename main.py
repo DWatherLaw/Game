@@ -43,6 +43,12 @@ class Target(Entity):
             **kwargs
         )
         
+        # Bewegungsparameter
+        self.speed = random.uniform(1, 3)
+        self.direction_x = random.uniform(-1, 1)
+        self.direction_z = random.uniform(-1, 1)
+        self.direction_y = random.uniform(-0.5, 0.5)
+        
         # Ring 2 (rot)
         self.ring2 = Entity(
             model='cube',
@@ -87,6 +93,20 @@ class Target(Entity):
             position=(0, 0, 0),
             parent=self
         )
+    
+    def update(self):
+        # Ziel bewegen
+        self.x += self.direction_x * self.speed * time.dt
+        self.z += self.direction_z * self.speed * time.dt
+        self.y += self.direction_y * self.speed * time.dt
+        
+        # Grenzen der Arena prüfen und Richtung umkehren
+        if self.x > arena_size - 2 or self.x < -arena_size + 2:
+            self.direction_x *= -1
+        if self.z > arena_size - 2 or self.z < -arena_size + 2:
+            self.direction_z *= -1
+        if self.y > 4 or self.y < 1:
+            self.direction_y *= -1
 
 # Funktion zum Erstellen neuer Ziele
 def spawn_targets(count=7):
