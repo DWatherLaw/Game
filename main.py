@@ -41,7 +41,7 @@ sprint_speed_multiplier = 2.0
 
 # Stamina-Leiste UI
 stamina_bar_bg = Entity(model='cube', color=color.dark_gray, scale=(0.3, 0.03, 1), position=(0.6, -0.4, 0), parent=camera.ui)
-stamina_bar = Entity(model='cube', color=color.green, scale=(0.3, 0.025, 1), position=(0.6, -0.4, 0), parent=camera.ui)
+stamina_bar = Entity(model='cube', color=color.green, scale=(0.3, 0.03, 1), position=(0.6, -0.4, -0.01), parent=camera.ui)
 stamina_text = Text('STAMINA', position=(0.45, -0.38), scale=1, color=color.white, parent=camera.ui)
 
 # Zielscheiben-Klasse (Bogenschießziel)
