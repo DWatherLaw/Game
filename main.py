@@ -35,8 +35,8 @@ pause_text = None
 class Target(Entity):
     def __init__(self, position, **kwargs):
         super().__init__(
-            model='cylinder',
-            scale=(1.2, 0.05, 1.2),
+            model='cube',
+            scale=(2.4, 0.1, 2.4),
             position=position,
             collider='box',
             color=color.white,
@@ -45,45 +45,45 @@ class Target(Entity):
         
         # Ring 2 (rot)
         self.ring2 = Entity(
-            model='cylinder',
+            model='cube',
             color=color.red,
-            scale=(1.0, 1.1, 1.0),
+            scale=(0.83, 1.1, 0.83),
             position=(0, 0, 0),
             parent=self
         )
         
         # Ring 3 (weiß)
         self.ring3 = Entity(
-            model='cylinder',
+            model='cube',
             color=color.white,
-            scale=(0.8, 1.2, 0.8),
+            scale=(0.67, 1.2, 0.67),
             position=(0, 0, 0),
             parent=self
         )
         
         # Ring 4 (rot)
         self.ring4 = Entity(
-            model='cylinder',
+            model='cube',
             color=color.red,
-            scale=(0.6, 1.3, 0.6),
+            scale=(0.5, 1.3, 0.5),
             position=(0, 0, 0),
             parent=self
         )
         
         # Ring 5 (weiß)
         self.ring5 = Entity(
-            model='cylinder',
+            model='cube',
             color=color.white,
-            scale=(0.4, 1.4, 0.4),
+            scale=(0.33, 1.4, 0.33),
             position=(0, 0, 0),
             parent=self
         )
         
         # Bullseye (rot)
         self.bullseye = Entity(
-            model='cylinder',
+            model='cube',
             color=color.red,
-            scale=(0.2, 1.5, 0.2),
+            scale=(0.17, 1.5, 0.17),
             position=(0, 0, 0),
             parent=self
         )
