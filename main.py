@@ -44,7 +44,7 @@ class Target(Entity):
         )
         
         # Bewegungsparameter
-        self.speed = random.uniform(1, 3)
+        self.speed = random.uniform(5, 10)
         self.direction_x = random.uniform(-1, 1)
         self.direction_z = random.uniform(-1, 1)
         self.direction_y = random.uniform(-0.5, 0.5)
