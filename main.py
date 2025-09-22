@@ -31,6 +31,19 @@ player = FirstPersonController(position=(0, 1, 0))
 paused = False
 pause_text = None
 
+# Stamina-System
+max_stamina = 100
+current_stamina = max_stamina
+stamina_drain_rate = 30  # Stamina pro Sekunde beim Sprinten
+stamina_regen_rate = 20  # Stamina pro Sekunde bei Regeneration
+is_sprinting = False
+sprint_speed_multiplier = 2.0
+
+# Stamina-Leiste UI
+stamina_bar_bg = Entity(model='cube', color=color.dark_gray, scale=(0.3, 0.03, 1), position=(-0.6, 0.4, 0), parent=camera.ui)
+stamina_bar = Entity(model='cube', color=color.yellow, scale=(0.3, 0.025, 1), position=(-0.6, 0.4, 0), parent=camera.ui)
+stamina_text = Text('STAMINA', position=(-0.75, 0.42), scale=1, color=color.white, parent=camera.ui)
+
 # Zielscheiben-Klasse (Bogenschießziel)
 class Target(Entity):
     def __init__(self, position, **kwargs):
@@ -166,6 +179,50 @@ class Bullet(Entity):
             self.intersects(wall_east) or 
             self.intersects(wall_west)):
             destroy(self)
+
+# Update-Funktion für Stamina-System
+def update():
+    global current_stamina, is_sprinting
+    
+    if paused:
+        return
+    
+    # Sprint-Eingabe prüfen
+    if held_keys['left shift'] and current_stamina > 0:
+        if not is_sprinting:
+            is_sprinting = True
+            player.speed *= sprint_speed_multiplier
+        
+        # Stamina verbrauchen
+        current_stamina -= stamina_drain_rate * time.dt
+        current_stamina = max(0, current_stamina)
+        
+        # Sprint beenden wenn Stamina aufgebraucht
+        if current_stamina <= 0:
+            is_sprinting = False
+            player.speed /= sprint_speed_multiplier
+    else:
+        # Sprint beenden
+        if is_sprinting:
+            is_sprinting = False
+            player.speed /= sprint_speed_multiplier
+        
+        # Stamina regenerieren
+        if current_stamina < max_stamina:
+            current_stamina += stamina_regen_rate * time.dt
+            current_stamina = min(max_stamina, current_stamina)
+    
+    # Stamina-Leiste aktualisieren
+    stamina_percentage = current_stamina / max_stamina
+    stamina_bar.scale_x = 0.3 * stamina_percentage
+    
+    # Farbe der Stamina-Leiste ändern je nach Level
+    if stamina_percentage > 0.6:
+        stamina_bar.color = color.green
+    elif stamina_percentage > 0.3:
+        stamina_bar.color = color.yellow
+    else:
+        stamina_bar.color = color.red
 
 # Eingabe-Funktion für Schießen
 def input(key):
