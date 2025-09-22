@@ -5,7 +5,7 @@ import random
 app = Ursina()
 
 # Boden erstellen
-ground = Entity(model='plane', scale=30, color=color.dark_green, collider='box')
+ground = Entity(model='plane', scale=30, color=color.green, collider='box')
 
 # Wände erstellen (vier Wände um die Arena)
 wall_height = 5
