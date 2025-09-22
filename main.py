@@ -27,6 +27,10 @@ sky = Sky()
 # Spieler erstellen (FirstPersonController)
 player = FirstPersonController(position=(0, 1, 0))
 
+# Pause-System
+paused = False
+pause_text = None
+
 # Ziele erstellen (5-10 Ziele an zufälligen Positionen)
 targets = []
 for i in range(7):
@@ -79,7 +83,24 @@ class Bullet(Entity):
 
 # Eingabe-Funktion für Schießen
 def input(key):
-    if key == 'left mouse down':
+    global paused, pause_text
+    
+    if key == 'escape':
+        paused = not paused
+        if paused:
+            # Spiel pausieren
+            application.paused = True
+            mouse.locked = False
+            pause_text = Text('PAUSE', origin=(0, 0), scale=5, color=color.white)
+        else:
+            # Spiel fortsetzen
+            application.paused = False
+            mouse.locked = True
+            if pause_text:
+                destroy(pause_text)
+                pause_text = None
+    
+    if not paused and key == 'left mouse down':
         # Kugel an der Kameraposition erstellen
         bullet = Bullet(position=camera.world_position)
 
