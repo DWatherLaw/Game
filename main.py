@@ -40,9 +40,9 @@ is_sprinting = False
 sprint_speed_multiplier = 2.0
 
 # Stamina-Leiste UI
-stamina_bar_bg = Entity(model='cube', color=color.dark_gray, scale=(0.3, 0.03, 1), position=(-0.6, 0.4, 0), parent=camera.ui)
-stamina_bar = Entity(model='cube', color=color.yellow, scale=(0.3, 0.025, 1), position=(-0.6, 0.4, 0), parent=camera.ui)
-stamina_text = Text('STAMINA', position=(-0.75, 0.42), scale=1, color=color.white, parent=camera.ui)
+stamina_bar_bg = Entity(model='cube', color=color.dark_gray, scale=(0.3, 0.03, 1), position=(0.6, -0.4, 0), parent=camera.ui)
+stamina_bar = Entity(model='cube', color=color.green, scale=(0.3, 0.025, 1), position=(0.6, -0.4, 0), parent=camera.ui)
+stamina_text = Text('STAMINA', position=(0.45, -0.38), scale=1, color=color.white, parent=camera.ui)
 
 # Zielscheiben-Klasse (Bogenschießziel)
 class Target(Entity):
@@ -215,6 +215,9 @@ def update():
     # Stamina-Leiste aktualisieren
     stamina_percentage = current_stamina / max_stamina
     stamina_bar.scale_x = 0.3 * stamina_percentage
+    
+    # Position des grünen Balkens anpassen, damit er links am Hintergrund ausgerichtet ist
+    stamina_bar.x = 0.6 - (0.3 * (1 - stamina_percentage)) / 2
     
     # Farbe der Stamina-Leiste ändern je nach Level
     if stamina_percentage > 0.6:
