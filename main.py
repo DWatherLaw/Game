@@ -39,24 +39,16 @@ class Target(Entity):
             scale=(1.2, 0.05, 1.2),
             position=position,
             collider='box',
-            **kwargs
-        )
-        
-        # Ring 1 (äußerster - weiß)
-        self.ring1 = Entity(
-            model='cylinder',
             color=color.white,
-            scale=(1.2, 0.06, 1.2),
-            position=position,
-            parent=self
+            **kwargs
         )
         
         # Ring 2 (rot)
         self.ring2 = Entity(
             model='cylinder',
             color=color.red,
-            scale=(1.0, 0.07, 1.0),
-            position=position,
+            scale=(1.0, 1.1, 1.0),
+            position=(0, 0, 0),
             parent=self
         )
         
@@ -64,8 +56,8 @@ class Target(Entity):
         self.ring3 = Entity(
             model='cylinder',
             color=color.white,
-            scale=(0.8, 0.08, 0.8),
-            position=position,
+            scale=(0.8, 1.2, 0.8),
+            position=(0, 0, 0),
             parent=self
         )
         
@@ -73,8 +65,8 @@ class Target(Entity):
         self.ring4 = Entity(
             model='cylinder',
             color=color.red,
-            scale=(0.6, 0.09, 0.6),
-            position=position,
+            scale=(0.6, 1.3, 0.6),
+            position=(0, 0, 0),
             parent=self
         )
         
@@ -82,8 +74,8 @@ class Target(Entity):
         self.ring5 = Entity(
             model='cylinder',
             color=color.white,
-            scale=(0.4, 0.10, 0.4),
-            position=position,
+            scale=(0.4, 1.4, 0.4),
+            position=(0, 0, 0),
             parent=self
         )
         
@@ -91,8 +83,8 @@ class Target(Entity):
         self.bullseye = Entity(
             model='cylinder',
             color=color.red,
-            scale=(0.2, 0.11, 0.2),
-            position=position,
+            scale=(0.2, 1.5, 0.2),
+            position=(0, 0, 0),
             parent=self
         )
 
