@@ -66,8 +66,8 @@ class Bullet(Entity):
             
         # Kollisionsprüfung mit distanzbasierter Erkennung
         for target in targets[:]:  # Kopie der Liste verwenden
-            distance = distance(self.position, target.position)
-            if distance < 0.5:  # Kollision wenn Distanz kleiner als 0.5 Einheiten
+            dist = distance(self.position, target.position)
+            if dist < 0.5:  # Kollision wenn Distanz kleiner als 0.5 Einheiten
                 targets.remove(target)
                 destroy(target)
                 destroy(self)
