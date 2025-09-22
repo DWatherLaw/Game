@@ -88,15 +88,20 @@ class Target(Entity):
             parent=self
         )
 
+# Funktion zum Erstellen neuer Ziele
+def spawn_targets(count=7):
+    global targets
+    for i in range(count):
+        x = random.uniform(-arena_size + 2, arena_size - 2)
+        z = random.uniform(-arena_size + 2, arena_size - 2)
+        y = random.uniform(1, 4)
+        
+        target = Target(position=(x, y, z))
+        targets.append(target)
+
 # Ziele erstellen (5-10 Zielscheiben an zufälligen Positionen)
 targets = []
-for i in range(7):
-    x = random.uniform(-arena_size + 2, arena_size - 2)
-    z = random.uniform(-arena_size + 2, arena_size - 2)
-    y = random.uniform(1, 4)
-    
-    target = Target(position=(x, y, z))
-    targets.append(target)
+spawn_targets(7)
 
 # Kugel-Klasse
 class Bullet(Entity):
@@ -128,6 +133,10 @@ class Bullet(Entity):
                 targets.remove(target)
                 destroy(target)
                 destroy(self)
+                
+                # Neue Ziele spawnen wenn alle abgeschossen wurden
+                if len(targets) == 0:
+                    spawn_targets(7)
                 return
                 
         # Prüfung auf Wand- oder Bodenkollision
