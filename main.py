@@ -230,12 +230,10 @@ def input(key):
         paused = not paused
         if paused:
             # Spiel pausieren
-            application.paused = True
             mouse.locked = False
             pause_text = Text('PAUSE', origin=(0, 0), scale=5, color=color.white)
         else:
             # Spiel fortsetzen
-            application.paused = False
             mouse.locked = True
             if pause_text:
                 destroy(pause_text)
