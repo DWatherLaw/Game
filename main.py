@@ -53,99 +53,70 @@ hp_bar_bg = Entity(model='cube', color=color.dark_gray, scale=(0.3, 0.03, 1), po
 hp_bar = Entity(model='cube', color=color.red, scale=(0.3, 0.03, 1), position=(-0.6, -0.4, -0.01), parent=camera.ui)
 hp_text = Text('HP', position=(-0.75, -0.35, -0.02), scale=1, color=color.white, parent=camera.ui)
 
-# Zielscheiben-Klasse (Bogenschießziel)
-class Target(Entity):
+# Enemy-Klasse
+class Enemy(Entity):
     def __init__(self, position, **kwargs):
         super().__init__(
             model='cube',
-            scale=(2.4, 2.4, 0.1),
+            scale=(1, 2, 1),
             position=position,
             collider='box',
-            color=color.white,
+            color=color.red,
             **kwargs
         )
         
-        # Bewegungsparameter
-        self.speed = random.uniform(5, 10)
-        self.direction_x = random.uniform(-1, 1)
-        self.direction_z = random.uniform(-1, 1)
-        self.direction_y = random.uniform(-0.5, 0.5)
+        # Schießparameter
+        self.shoot_timer = 0
+        self.shoot_interval = random.uniform(1.5, 3.0)  # Schießt alle 1.5-3 Sekunden
         
-        # Ring 2 (rot)
-        self.ring2 = Entity(
+        # Kopf des Feindes
+        self.head = Entity(
             model='cube',
-            color=color.red,
-            scale=(0.83, 0.83, 1.1),
-            position=(0, 0, 0),
-            parent=self
-        )
-        
-        # Ring 3 (weiß)
-        self.ring3 = Entity(
-            model='cube',
-            color=color.white,
-            scale=(0.67, 0.67, 1.2),
-            position=(0, 0, 0),
-            parent=self
-        )
-        
-        # Ring 4 (rot)
-        self.ring4 = Entity(
-            model='cube',
-            color=color.red,
-            scale=(0.5, 0.5, 1.3),
-            position=(0, 0, 0),
-            parent=self
-        )
-        
-        # Ring 5 (weiß)
-        self.ring5 = Entity(
-            model='cube',
-            color=color.white,
-            scale=(0.33, 0.33, 1.4),
-            position=(0, 0, 0),
-            parent=self
-        )
-        
-        # Bullseye (rot)
-        self.bullseye = Entity(
-            model='cube',
-            color=color.red,
-            scale=(0.17, 0.17, 1.5),
-            position=(0, 0, 0),
+            color=color.dark_red,
+            scale=(0.8, 0.8, 0.8),
+            position=(0, 0.6, 0),
             parent=self
         )
     
     def update(self):
-        # Ziel bewegen
-        self.x += self.direction_x * self.speed * time.dt
-        self.z += self.direction_z * self.speed * time.dt
-        self.y += self.direction_y * self.speed * time.dt
+        if paused:
+            return
+            
+        # Schießtimer aktualisieren
+        self.shoot_timer += time.dt
         
-        # Grenzen der Arena prüfen und Richtung umkehren
-        if self.x > arena_size - 2 or self.x < -arena_size + 2:
-            self.direction_x *= -1
-        if self.z > arena_size - 2 or self.z < -arena_size + 2:
-            self.direction_z *= -1
-        if self.y > 4 or self.y < 1:
-            self.direction_y *= -1
+        # Schießen wenn Timer abgelaufen
+        if self.shoot_timer >= self.shoot_interval:
+            self.shoot_at_player()
+            self.shoot_timer = 0
+            self.shoot_interval = random.uniform(1.5, 3.0)
+    
+    def shoot_at_player(self):
+        # Richtung zum Spieler berechnen
+        direction_to_player = (player.position - self.position).normalized()
+        
+        # Feindliche Kugel erstellen
+        enemy_bullet = EnemyBullet(
+            position=self.position + Vec3(0, 1, 0),  # Etwas höher spawnen
+            direction=direction_to_player
+        )
 
-# Funktion zum Erstellen neuer Ziele
-def spawn_targets(count=7):
-    global targets
+# Funktion zum Erstellen neuer Feinde
+def spawn_enemies(count=5):
+    global enemies
     for i in range(count):
-        x = random.uniform(-arena_size + 2, arena_size - 2)
-        z = random.uniform(-arena_size + 2, arena_size - 2)
-        y = random.uniform(1, 4)
+        x = random.uniform(-arena_size + 3, arena_size - 3)
+        z = random.uniform(-arena_size + 3, arena_size - 3)
+        y = 1  # Feinde stehen auf dem Boden
         
-        target = Target(position=(x, y, z))
-        targets.append(target)
+        enemy = Enemy(position=(x, y, z))
+        enemies.append(enemy)
 
-# Ziele erstellen (5-10 Zielscheiben an zufälligen Positionen)
-targets = []
-spawn_targets(7)
+# Feinde erstellen
+enemies = []
+spawn_enemies(5)
 
-# Kugel-Klasse
+# Spieler-Kugel-Klasse
 class Bullet(Entity):
     def __init__(self, **kwargs):
         super().__init__(
@@ -168,18 +139,58 @@ class Bullet(Entity):
             destroy(self)
             return
             
-        # Kollisionsprüfung mit distanzbasierter Erkennung
-        for target in targets[:]:  # Kopie der Liste verwenden
-            dist = distance(self.position, target.position)
-            if dist < 1.5:  # Kollision wenn Distanz kleiner als 1.5 Einheiten (volle Zielscheibe)
-                targets.remove(target)
-                destroy(target)
+        # Kollisionsprüfung mit Feinden
+        for enemy in enemies[:]:  # Kopie der Liste verwenden
+            dist = distance(self.position, enemy.position)
+            if dist < 1.5:  # Kollision mit Feind
+                enemies.remove(enemy)
+                destroy(enemy)
                 destroy(self)
                 
-                # Neue Ziele spawnen wenn alle abgeschossen wurden
-                if len(targets) == 0:
-                    spawn_targets(7)
+                # Neue Feinde spawnen wenn alle eliminiert wurden
+                if len(enemies) == 0:
+                    spawn_enemies(5)
                 return
+                
+        # Prüfung auf Wand- oder Bodenkollision
+        if (self.intersects(ground) or 
+            self.intersects(wall_north) or 
+            self.intersects(wall_south) or 
+            self.intersects(wall_east) or 
+            self.intersects(wall_west)):
+            destroy(self)
+
+# Feindliche Kugel-Klasse
+class EnemyBullet(Entity):
+    def __init__(self, direction, **kwargs):
+        super().__init__(
+            model='sphere',
+            color=color.orange,
+            scale=0.08,
+            **kwargs
+        )
+        self.speed = 15
+        self.lifetime = 3.0
+        self.direction = direction
+        
+    def update(self):
+        # Kugel bewegen
+        self.position += self.direction * self.speed * time.dt
+        
+        # Lebensdauer verringern
+        self.lifetime -= time.dt
+        if self.lifetime <= 0:
+            destroy(self)
+            return
+            
+        # Kollisionsprüfung mit Spieler
+        dist = distance(self.position, player.position)
+        if dist < 1.0:  # Spieler getroffen
+            global current_hp
+            current_hp -= 10  # 10 HP Schaden
+            current_hp = max(0, current_hp)
+            destroy(self)
+            return
                 
         # Prüfung auf Wand- oder Bodenkollision
         if (self.intersects(ground) or 
