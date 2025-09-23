@@ -112,61 +112,61 @@ class Enemy(Entity):
             parent=self
         )
         
-        # Linker Arm (Oberarm) - ausgestreckt nach vorne
+        # Linker Arm (Oberarm) - seitlich ausgestreckt
         self.left_arm = Entity(
             model='cube',
             color=color.dark_gray,
-            scale=(0.15, 0.5, 0.15),
-            position=(-0.25, 0.4, 0.3),
-            rotation=(0, 0, -30),
+            scale=(0.5, 0.15, 0.15),
+            position=(-0.55, 0.4, 0),
+            rotation=(0, 0, 0),
             parent=self
         )
         
-        # Linker Unterarm - ausgestreckt nach vorne
+        # Linker Unterarm - seitlich ausgestreckt
         self.left_forearm = Entity(
             model='cube',
             color=color.dark_gray,
-            scale=(0.12, 0.4, 0.12),
-            position=(-0.15, 0.2, 0.6),
-            rotation=(0, 0, -15),
+            scale=(0.4, 0.12, 0.12),
+            position=(-0.9, 0.4, 0),
+            rotation=(0, 0, 0),
             parent=self
         )
         
-        # Linke Hand - ausgestreckt nach vorne
+        # Linke Hand - seitlich ausgestreckt
         self.left_hand = Entity(
             model='cube',
             color=color.light_gray,
-            scale=(0.1, 0.15, 0.1),
-            position=(-0.1, 0.1, 0.8),
+            scale=(0.15, 0.1, 0.1),
+            position=(-1.15, 0.4, 0),
             parent=self
         )
         
-        # Rechter Arm (Oberarm) - ausgestreckt nach vorne
+        # Rechter Arm (Oberarm) - seitlich ausgestreckt
         self.right_arm = Entity(
             model='cube',
             color=color.dark_gray,
-            scale=(0.15, 0.5, 0.15),
-            position=(0.25, 0.4, 0.3),
-            rotation=(0, 0, 30),
+            scale=(0.5, 0.15, 0.15),
+            position=(0.55, 0.4, 0),
+            rotation=(0, 0, 0),
             parent=self
         )
         
-        # Rechter Unterarm - ausgestreckt nach vorne
+        # Rechter Unterarm - seitlich ausgestreckt
         self.right_forearm = Entity(
             model='cube',
             color=color.dark_gray,
-            scale=(0.12, 0.4, 0.12),
-            position=(0.15, 0.2, 0.6),
-            rotation=(0, 0, 15),
+            scale=(0.4, 0.12, 0.12),
+            position=(0.9, 0.4, 0),
+            rotation=(0, 0, 0),
             parent=self
         )
         
-        # Rechte Hand - ausgestreckt nach vorne
+        # Rechte Hand - seitlich ausgestreckt
         self.right_hand = Entity(
             model='cube',
             color=color.light_gray,
-            scale=(0.1, 0.15, 0.1),
-            position=(0.1, 0.1, 0.8),
+            scale=(0.15, 0.1, 0.1),
+            position=(1.15, 0.4, 0),
             parent=self
         )
         
