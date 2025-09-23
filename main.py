@@ -2,6 +2,7 @@ from ursina import *
 from ursina.prefabs.first_person_controller import FirstPersonController
 import random
 import json
+import math
 
 # Initialisierung der Ursina-Anwendung
 app = Ursina(
@@ -23,8 +24,56 @@ window.color = color.black
 # Spiel direkt starten
 game_started = True
 
-# Boden erstellen mit besserer Textur
-ground = Entity(model='plane', scale=30, color=color.dark_gray, collider='box')
+# Map-System
+current_map = 1
+maps = {
+    1: {
+        "name": "Standard Arena",
+        "type": "square",
+        "size": 15,
+        "enemies": 5,
+        "color": color.dark_gray
+    },
+    2: {
+        "name": "Kreisförmige Arena", 
+        "type": "circle",
+        "size": 12,
+        "enemies": 6,
+        "color": color.rgb(60, 60, 80)
+    },
+    3: {
+        "name": "Labyrinth",
+        "type": "maze",
+        "size": 20,
+        "enemies": 8,
+        "color": color.rgb(40, 60, 40)
+    },
+    4: {
+        "name": "Multi-Level Arena",
+        "type": "multilevel", 
+        "size": 18,
+        "enemies": 10,
+        "color": color.rgb(80, 60, 40)
+    },
+    5: {
+        "name": "Offene Wüste",
+        "type": "desert",
+        "size": 25,
+        "enemies": 12,
+        "color": color.rgb(120, 100, 60)
+    },
+    6: {
+        "name": "Industriegebiet",
+        "type": "industrial",
+        "size": 22,
+        "enemies": 15,
+        "color": color.rgb(50, 50, 50)
+    }
+}
+
+# Globale Variablen für Map-Objekte
+map_objects = []
+ground = None
 
 # Beleuchtung hinzufügen
 DirectionalLight(direction=(1, -1, 1), color=color.white)
@@ -87,18 +136,223 @@ class ParticleSystem:
             )
             destroy(particle, delay=0.5)
 
-# Wände erstellen (vier Wände um die Arena) mit besseren Texturen
-wall_height = 5
-arena_size = 15
+# Map-Erstellungsfunktionen
+def create_square_arena(size, map_color):
+    """Standard quadratische Arena"""
+    global ground, map_objects
+    
+    # Boden
+    ground = Entity(model='plane', scale=size*2, color=map_color, collider='box')
+    map_objects.append(ground)
+    
+    wall_height = 5
+    wall_color = color.rgb(80, 80, 80)
+    
+    # Vier Wände
+    walls = [
+        Entity(model='cube', position=(0, wall_height/2, size), scale=(size*2, wall_height, 1), color=wall_color, collider='box'),
+        Entity(model='cube', position=(0, wall_height/2, -size), scale=(size*2, wall_height, 1), color=wall_color, collider='box'),
+        Entity(model='cube', position=(size, wall_height/2, 0), scale=(1, wall_height, size*2), color=wall_color, collider='box'),
+        Entity(model='cube', position=(-size, wall_height/2, 0), scale=(1, wall_height, size*2), color=wall_color, collider='box')
+    ]
+    map_objects.extend(walls)
 
-# Nördliche Wand
-wall_north = Entity(model='cube', position=(0, wall_height/2, arena_size), scale=(arena_size*2, wall_height, 1), color=color.rgb(80, 80, 80), collider='box')
-# Südliche Wand  
-wall_south = Entity(model='cube', position=(0, wall_height/2, -arena_size), scale=(arena_size*2, wall_height, 1), color=color.rgb(80, 80, 80), collider='box')
-# Östliche Wand
-wall_east = Entity(model='cube', position=(arena_size, wall_height/2, 0), scale=(1, wall_height, arena_size*2), color=color.rgb(80, 80, 80), collider='box')
-# Westliche Wand
-wall_west = Entity(model='cube', position=(-arena_size, wall_height/2, 0), scale=(1, wall_height, arena_size*2), color=color.rgb(80, 80, 80), collider='box')
+def create_circle_arena(size, map_color):
+    """Kreisförmige Arena mit runden Wänden"""
+    global ground, map_objects
+    
+    # Boden
+    ground = Entity(model='plane', scale=size*2, color=map_color, collider='box')
+    map_objects.append(ground)
+    
+    wall_height = 5
+    wall_color = color.rgb(80, 80, 80)
+    
+    # Kreisförmige Wände (viele kleine Segmente)
+    segments = 24
+    for i in range(segments):
+        angle = (i / segments) * 2 * 3.14159
+        x = size * math.cos(angle)
+        z = size * math.sin(angle)
+        
+        wall = Entity(
+            model='cube',
+            position=(x, wall_height/2, z),
+            scale=(1, wall_height, 1),
+            color=wall_color,
+            collider='box',
+            rotation_y=angle * 57.2958  # Radians zu Grad
+        )
+        map_objects.append(wall)
+
+def create_maze_arena(size, map_color):
+    """Labyrinth mit engen Gängen"""
+    global ground, map_objects
+    
+    # Boden
+    ground = Entity(model='plane', scale=size*2, color=map_color, collider='box')
+    map_objects.append(ground)
+    
+    wall_height = 5
+    wall_color = color.rgb(60, 60, 60)
+    
+    # Äußere Wände
+    outer_walls = [
+        Entity(model='cube', position=(0, wall_height/2, size), scale=(size*2, wall_height, 1), color=wall_color, collider='box'),
+        Entity(model='cube', position=(0, wall_height/2, -size), scale=(size*2, wall_height, 1), color=wall_color, collider='box'),
+        Entity(model='cube', position=(size, wall_height/2, 0), scale=(1, wall_height, size*2), color=wall_color, collider='box'),
+        Entity(model='cube', position=(-size, wall_height/2, 0), scale=(1, wall_height, size*2), color=wall_color, collider='box')
+    ]
+    map_objects.extend(outer_walls)
+    
+    # Innere Labyrinth-Wände
+    maze_walls = [
+        # Horizontale Wände
+        Entity(model='cube', position=(-8, wall_height/2, 0), scale=(6, wall_height, 1), color=wall_color, collider='box'),
+        Entity(model='cube', position=(8, wall_height/2, 5), scale=(6, wall_height, 1), color=wall_color, collider='box'),
+        Entity(model='cube', position=(0, wall_height/2, -8), scale=(8, wall_height, 1), color=wall_color, collider='box'),
+        Entity(model='cube', position=(-5, wall_height/2, 8), scale=(10, wall_height, 1), color=wall_color, collider='box'),
+        
+        # Vertikale Wände
+        Entity(model='cube', position=(0, wall_height/2, 3), scale=(1, wall_height, 6), color=wall_color, collider='box'),
+        Entity(model='cube', position=(-10, wall_height/2, -5), scale=(1, wall_height, 8), color=wall_color, collider='box'),
+        Entity(model='cube', position=(10, wall_height/2, -2), scale=(1, wall_height, 12), color=wall_color, collider='box'),
+        Entity(model='cube', position=(5, wall_height/2, 10), scale=(1, wall_height, 8), color=wall_color, collider='box')
+    ]
+    map_objects.extend(maze_walls)
+
+def create_multilevel_arena(size, map_color):
+    """Multi-Level Arena mit verschiedenen Höhen"""
+    global ground, map_objects
+    
+    # Hauptboden
+    ground = Entity(model='plane', scale=size*2, color=map_color, collider='box')
+    map_objects.append(ground)
+    
+    wall_height = 5
+    wall_color = color.rgb(80, 60, 40)
+    
+    # Äußere Wände
+    outer_walls = [
+        Entity(model='cube', position=(0, wall_height/2, size), scale=(size*2, wall_height, 1), color=wall_color, collider='box'),
+        Entity(model='cube', position=(0, wall_height/2, -size), scale=(size*2, wall_height, 1), color=wall_color, collider='box'),
+        Entity(model='cube', position=(size, wall_height/2, 0), scale=(1, wall_height, size*2), color=wall_color, collider='box'),
+        Entity(model='cube', position=(-size, wall_height/2, 0), scale=(1, wall_height, size*2), color=wall_color, collider='box')
+    ]
+    map_objects.extend(outer_walls)
+    
+    # Erhöhte Plattformen
+    platforms = [
+        Entity(model='cube', position=(-8, 1, -8), scale=(6, 2, 6), color=color.rgb(100, 80, 60), collider='box'),
+        Entity(model='cube', position=(8, 1.5, 8), scale=(6, 3, 6), color=color.rgb(100, 80, 60), collider='box'),
+        Entity(model='cube', position=(0, 2, 0), scale=(4, 4, 4), color=color.rgb(100, 80, 60), collider='box'),
+        Entity(model='cube', position=(-8, 0.5, 8), scale=(6, 1, 6), color=color.rgb(100, 80, 60), collider='box')
+    ]
+    map_objects.extend(platforms)
+    
+    # Rampen
+    ramps = [
+        Entity(model='cube', position=(-5, 0.5, -5), scale=(3, 1, 3), color=color.rgb(90, 70, 50), collider='box', rotation=(0, 0, 15)),
+        Entity(model='cube', position=(5, 0.75, 5), scale=(3, 1.5, 3), color=color.rgb(90, 70, 50), collider='box', rotation=(0, 0, -15))
+    ]
+    map_objects.extend(ramps)
+
+def create_desert_arena(size, map_color):
+    """Offene Wüste mit wenigen Hindernissen"""
+    global ground, map_objects
+    
+    # Großer Boden
+    ground = Entity(model='plane', scale=size*2, color=map_color, collider='box')
+    map_objects.append(ground)
+    
+    wall_height = 3  # Niedrigere Wände für offenes Gefühl
+    wall_color = color.rgb(140, 120, 80)
+    
+    # Weit entfernte Wände
+    walls = [
+        Entity(model='cube', position=(0, wall_height/2, size), scale=(size*2, wall_height, 1), color=wall_color, collider='box'),
+        Entity(model='cube', position=(0, wall_height/2, -size), scale=(size*2, wall_height, 1), color=wall_color, collider='box'),
+        Entity(model='cube', position=(size, wall_height/2, 0), scale=(1, wall_height, size*2), color=wall_color, collider='box'),
+        Entity(model='cube', position=(-size, wall_height/2, 0), scale=(1, wall_height, size*2), color=wall_color, collider='box')
+    ]
+    map_objects.extend(walls)
+    
+    # Wenige Felsen als Deckung
+    rocks = [
+        Entity(model='cube', position=(-10, 1, -10), scale=(2, 2, 2), color=color.rgb(100, 90, 70), collider='box'),
+        Entity(model='cube', position=(12, 0.5, 8), scale=(3, 1, 3), color=color.rgb(100, 90, 70), collider='box'),
+        Entity(model='cube', position=(0, 1.5, -15), scale=(2, 3, 2), color=color.rgb(100, 90, 70), collider='box'),
+        Entity(model='cube', position=(-15, 0.8, 5), scale=(2.5, 1.5, 2.5), color=color.rgb(100, 90, 70), collider='box')
+    ]
+    map_objects.extend(rocks)
+
+def create_industrial_arena(size, map_color):
+    """Industriegebiet mit vielen Containern und Hindernissen"""
+    global ground, map_objects
+    
+    # Boden
+    ground = Entity(model='plane', scale=size*2, color=map_color, collider='box')
+    map_objects.append(ground)
+    
+    wall_height = 6
+    wall_color = color.rgb(40, 40, 40)
+    
+    # Äußere Wände
+    outer_walls = [
+        Entity(model='cube', position=(0, wall_height/2, size), scale=(size*2, wall_height, 1), color=wall_color, collider='box'),
+        Entity(model='cube', position=(0, wall_height/2, -size), scale=(size*2, wall_height, 1), color=wall_color, collider='box'),
+        Entity(model='cube', position=(size, wall_height/2, 0), scale=(1, wall_height, size*2), color=wall_color, collider='box'),
+        Entity(model='cube', position=(-size, wall_height/2, 0), scale=(1, wall_height, size*2), color=wall_color, collider='box')
+    ]
+    map_objects.extend(outer_walls)
+    
+    # Container und Hindernisse
+    containers = [
+        # Große Container
+        Entity(model='cube', position=(-8, 1.5, -8), scale=(4, 3, 8), color=color.rgb(80, 40, 40), collider='box'),
+        Entity(model='cube', position=(10, 1.5, 5), scale=(6, 3, 4), color=color.rgb(40, 80, 40), collider='box'),
+        Entity(model='cube', position=(0, 2, -12), scale=(8, 4, 4), color=color.rgb(40, 40, 80), collider='box'),
+        
+        # Kleine Container
+        Entity(model='cube', position=(-12, 1, 8), scale=(3, 2, 3), color=color.rgb(60, 60, 40), collider='box'),
+        Entity(model='cube', position=(8, 1, -5), scale=(3, 2, 3), color=color.rgb(60, 40, 60), collider='box'),
+        Entity(model='cube', position=(5, 0.5, 12), scale=(2, 1, 4), color=color.rgb(40, 60, 60), collider='box'),
+        
+        # Rohre und Säulen
+        Entity(model='cube', position=(-5, 2.5, 0), scale=(1, 5, 1), color=color.rgb(70, 70, 70), collider='box'),
+        Entity(model='cube', position=(0, 2.5, 8), scale=(1, 5, 1), color=color.rgb(70, 70, 70), collider='box'),
+        Entity(model='cube', position=(12, 1.5, -10), scale=(2, 3, 2), color=color.rgb(70, 70, 70), collider='box')
+    ]
+    map_objects.extend(containers)
+
+def load_map(map_id):
+    """Lädt eine bestimmte Map"""
+    global current_map, map_objects, ground
+    
+    # Alte Map-Objekte entfernen
+    for obj in map_objects:
+        destroy(obj)
+    map_objects.clear()
+    
+    current_map = map_id
+    map_data = maps[map_id]
+    
+    # Map basierend auf Typ erstellen
+    if map_data["type"] == "square":
+        create_square_arena(map_data["size"], map_data["color"])
+    elif map_data["type"] == "circle":
+        create_circle_arena(map_data["size"], map_data["color"])
+    elif map_data["type"] == "maze":
+        create_maze_arena(map_data["size"], map_data["color"])
+    elif map_data["type"] == "multilevel":
+        create_multilevel_arena(map_data["size"], map_data["color"])
+    elif map_data["type"] == "desert":
+        create_desert_arena(map_data["size"], map_data["color"])
+    elif map_data["type"] == "industrial":
+        create_industrial_arena(map_data["size"], map_data["color"])
+
+# Erste Map laden
+load_map(1)
 
 # Himmel erstellen
 sky = Sky()
@@ -194,6 +448,7 @@ ammo_text = Text('', position=(-0.9, -0.45), scale=1.5, color=color.white, paren
 weapon_text = Text('', position=(-0.9, -0.4), scale=1, color=color.white, parent=camera.ui)
 score_text = Text('', position=(-0.9, 0.45), scale=1.5, color=color.white, parent=camera.ui)
 wave_text = Text('', position=(-0.9, 0.4), scale=1, color=color.white, parent=camera.ui)
+map_text = Text('', position=(-0.9, 0.35), scale=1, color=color.cyan, parent=camera.ui)
 reload_text = Text('', position=(0, -0.2), scale=2, color=color.red, parent=camera.ui)
 
 # Enemy-Klasse
@@ -386,9 +641,28 @@ class Enemy(Entity):
 # Funktion zum Erstellen neuer Feinde
 def spawn_enemies(count=5):
     global enemies
+    map_data = maps[current_map]
+    map_size = map_data["size"]
+    
     for i in range(count):
-        x = random.uniform(-arena_size + 3, arena_size - 3)
-        z = random.uniform(-arena_size + 3, arena_size - 3)
+        # Spawn-Position basierend auf Map-Typ anpassen
+        if map_data["type"] == "circle":
+            # Innerhalb des Kreises spawnen
+            angle = random.uniform(0, 2 * math.pi)
+            radius = random.uniform(3, map_size - 3)
+            x = radius * math.cos(angle)
+            z = radius * math.sin(angle)
+        elif map_data["type"] == "maze":
+            # In offenen Bereichen des Labyrinths spawnen
+            spawn_areas = [(-15, -15), (15, 15), (-15, 15), (15, -15), (0, 10), (-10, 0), (10, -10)]
+            area = random.choice(spawn_areas)
+            x = area[0] + random.uniform(-2, 2)
+            z = area[1] + random.uniform(-2, 2)
+        else:
+            # Standard-Spawn für andere Maps
+            x = random.uniform(-map_size + 3, map_size - 3)
+            z = random.uniform(-map_size + 3, map_size - 3)
+        
         y = 1  # Feinde stehen auf dem Boden
         
         enemy = Enemy(position=(x, y, z))
@@ -450,13 +724,11 @@ class Bullet(Entity):
                     spawn_enemies(5)
                 return
                 
-        # Prüfung auf Wand- oder Bodenkollision
-        if (self.intersects(ground) or 
-            self.intersects(wall_north) or 
-            self.intersects(wall_south) or 
-            self.intersects(wall_east) or 
-            self.intersects(wall_west)):
-            destroy(self)
+        # Prüfung auf Kollision mit Map-Objekten
+        for map_obj in map_objects:
+            if self.intersects(map_obj):
+                destroy(self)
+                return
 
 # Feindliche Kugel-Klasse
 class EnemyBullet(Entity):
@@ -494,13 +766,11 @@ class EnemyBullet(Entity):
             destroy(self)
             return
                 
-        # Prüfung auf Wand- oder Bodenkollision
-        if (self.intersects(ground) or 
-            self.intersects(wall_north) or 
-            self.intersects(wall_south) or 
-            self.intersects(wall_east) or 
-            self.intersects(wall_west)):
-            destroy(self)
+        # Prüfung auf Kollision mit Map-Objekten
+        for map_obj in map_objects:
+            if self.intersects(map_obj):
+                destroy(self)
+                return
 
 # Game Over Menü erstellen
 def show_game_over_menu():
@@ -674,6 +944,7 @@ def update():
     weapon_text.text = f'Waffe: {current_weapon.upper()}'
     score_text.text = f'Score: {score}'
     wave_text.text = f'Welle: {wave_number}'
+    map_text.text = f'Map: {maps[current_map]["name"]}'
     
     # Nachladen-Text anzeigen
     if is_reloading:
@@ -712,6 +983,27 @@ def input(key):
             switch_weapon('shotgun')
         elif key == 'r':
             reload_weapon()
+        # Map wechseln
+        elif key == 'n':  # Nächste Map
+            next_map = current_map + 1
+            if next_map > len(maps):
+                next_map = 1
+            load_map(next_map)
+            # Feinde für neue Map spawnen
+            for enemy in enemies[:]:
+                destroy(enemy)
+            enemies.clear()
+            spawn_enemies(maps[current_map]["enemies"])
+        elif key == 'm':  # Vorherige Map
+            prev_map = current_map - 1
+            if prev_map < 1:
+                prev_map = len(maps)
+            load_map(prev_map)
+            # Feinde für neue Map spawnen
+            for enemy in enemies[:]:
+                destroy(enemy)
+            enemies.clear()
+            spawn_enemies(maps[current_map]["enemies"])
 
 # Spiel starten
 app.run()
