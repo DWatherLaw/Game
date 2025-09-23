@@ -609,80 +609,79 @@ def update():
     
     if not game_started:
         mouse.locked = False
-        return
-
-    if paused or game_over:
-        return
-    
-    # Game Over prüfen
-    if current_hp <= 0 and not game_over:
-        game_over = True
-        mouse.locked = False
-        show_game_over_menu()
-        return
-    
-    # Nachladen prüfen
-    if is_reloading:
-        current_time = time.time()
-        if current_time - reload_start_time >= weapons[current_weapon]['reload_time']:
-            weapons[current_weapon]['current_ammo'] = weapons[current_weapon]['max_ammo']
-            is_reloading = False
-    
-    # Sprint-Eingabe prüfen
-    if held_keys['left shift'] and current_stamina > 0:
-        if not is_sprinting:
-            is_sprinting = True
-            player.speed *= sprint_speed_multiplier
-        
-        # Stamina verbrauchen
-        current_stamina -= stamina_drain_rate * time.dt
-        current_stamina = max(0, current_stamina)
-        
-        # Sprint beenden wenn Stamina aufgebraucht
-        if current_stamina <= 0:
-            is_sprinting = False
-            player.speed /= sprint_speed_multiplier
     else:
-        # Sprint beenden
-        if is_sprinting:
-            is_sprinting = False
-            player.speed /= sprint_speed_multiplier
+        if paused or game_over:
+            return
         
-        # Stamina regenerieren
-        if current_stamina < max_stamina:
-            current_stamina += stamina_regen_rate * time.dt
-            current_stamina = min(max_stamina, current_stamina)
-    
-    # Stamina-Leiste aktualisieren
-    stamina_percentage = current_stamina / max_stamina
-    stamina_bar.scale_x = 0.3 * stamina_percentage
-    
-    # Position des grünen Balkens anpassen, damit er links am Hintergrund ausgerichtet ist
-    stamina_bar.x = 0.6 - (0.3 * (1 - stamina_percentage)) / 2
-    
-    # Stamina-Leiste bleibt immer blau
-    stamina_bar.color = color.blue
-    
-    # HP-Leiste aktualisieren
-    hp_percentage = current_hp / max_hp
-    hp_bar.scale_x = 0.3 * hp_percentage
-    
-    # Position des roten Balkens anpassen, damit er links am Hintergrund ausgerichtet ist
-    hp_bar.x = -0.6 - (0.3 * (1 - hp_percentage)) / 2
-    
-    # UI Texte aktualisieren
-    weapon = weapons[current_weapon]
-    ammo_text.text = f'Munition: {weapon["current_ammo"]}/{weapon["max_ammo"]}'
-    weapon_text.text = f'Waffe: {current_weapon.upper()}'
-    score_text.text = f'Score: {score}'
-    wave_text.text = f'Welle: {wave_number}'
-    
-    # Nachladen-Text anzeigen
-    if is_reloading:
-        reload_text.text = 'NACHLADEN...'
-        reload_text.enabled = True
-    else:
-        reload_text.enabled = False
+        # Game Over prüfen
+        if current_hp <= 0 and not game_over:
+            game_over = True
+            mouse.locked = False
+            show_game_over_menu()
+            return
+        
+        # Nachladen prüfen
+        if is_reloading:
+            current_time = time.time()
+            if current_time - reload_start_time >= weapons[current_weapon]['reload_time']:
+                weapons[current_weapon]['current_ammo'] = weapons[current_weapon]['max_ammo']
+                is_reloading = False
+        
+        # Sprint-Eingabe prüfen
+        if held_keys['left shift'] and current_stamina > 0:
+            if not is_sprinting:
+                is_sprinting = True
+                player.speed *= sprint_speed_multiplier
+            
+            # Stamina verbrauchen
+            current_stamina -= stamina_drain_rate * time.dt
+            current_stamina = max(0, current_stamina)
+            
+            # Sprint beenden wenn Stamina aufgebraucht
+            if current_stamina <= 0:
+                is_sprinting = False
+                player.speed /= sprint_speed_multiplier
+        else:
+            # Sprint beenden
+            if is_sprinting:
+                is_sprinting = False
+                player.speed /= sprint_speed_multiplier
+            
+            # Stamina regenerieren
+            if current_stamina < max_stamina:
+                current_stamina += stamina_regen_rate * time.dt
+                current_stamina = min(max_stamina, current_stamina)
+        
+        # Stamina-Leiste aktualisieren
+        stamina_percentage = current_stamina / max_stamina
+        stamina_bar.scale_x = 0.3 * stamina_percentage
+        
+        # Position des grünen Balkens anpassen, damit er links am Hintergrund ausgerichtet ist
+        stamina_bar.x = 0.6 - (0.3 * (1 - stamina_percentage)) / 2
+        
+        # Stamina-Leiste bleibt immer blau
+        stamina_bar.color = color.blue
+        
+        # HP-Leiste aktualisieren
+        hp_percentage = current_hp / max_hp
+        hp_bar.scale_x = 0.3 * hp_percentage
+        
+        # Position des roten Balkens anpassen, damit er links am Hintergrund ausgerichtet ist
+        hp_bar.x = -0.6 - (0.3 * (1 - hp_percentage)) / 2
+        
+        # UI Texte aktualisieren
+        weapon = weapons[current_weapon]
+        ammo_text.text = f'Munition: {weapon["current_ammo"]}/{weapon["max_ammo"]}'
+        weapon_text.text = f'Waffe: {current_weapon.upper()}'
+        score_text.text = f'Score: {score}'
+        wave_text.text = f'Welle: {wave_number}'
+        
+        # Nachladen-Text anzeigen
+        if is_reloading:
+            reload_text.text = 'NACHLADEN...'
+            reload_text.enabled = True
+        else:
+            reload_text.enabled = False
 
 # Eingabe-Funktion für Schießen
 def input(key):
@@ -691,34 +690,33 @@ def input(key):
     if not game_started:
         if key == 'escape' and main_menu.highscore_active:
             main_menu.show_main_menu()
-        return
-
-    if key == 'escape' and not game_over:
-        paused = not paused
-        if paused:
-            # Spiel pausieren
-            mouse.locked = False
-            pause_text = Text('PAUSE', origin=(0, 0), scale=5, color=color.white)
-        else:
-            # Spiel fortsetzen
-            mouse.locked = True
-            if pause_text:
-                destroy(pause_text)
-                pause_text = None
-    
-    if not paused and not game_over and key == 'left mouse down':
-        shoot()
-    
-    # Waffe wechseln
-    if not paused and not game_over:
-        if key == '1':
-            switch_weapon('pistol')
-        elif key == '2':
-            switch_weapon('rifle')
-        elif key == '3':
-            switch_weapon('shotgun')
-        elif key == 'r':
-            reload_weapon()
+    else:
+        if key == 'escape' and not game_over:
+            paused = not paused
+            if paused:
+                # Spiel pausieren
+                mouse.locked = False
+                pause_text = Text('PAUSE', origin=(0, 0), scale=5, color=color.white)
+            else:
+                # Spiel fortsetzen
+                mouse.locked = True
+                if pause_text:
+                    destroy(pause_text)
+                    pause_text = None
+        
+        if not paused and not game_over and key == 'left mouse down':
+            shoot()
+        
+        # Waffe wechseln
+        if not paused and not game_over:
+            if key == '1':
+                switch_weapon('pistol')
+            elif key == '2':
+                switch_weapon('rifle')
+            elif key == '3':
+                switch_weapon('shotgun')
+            elif key == 'r':
+                reload_weapon()
 
 def start_game():
     global game_started
