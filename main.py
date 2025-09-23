@@ -479,7 +479,9 @@ reload_start_time = 0
 score = 0
 wave_number = 1
 enemies_killed_this_wave = 0
-enemies_per_wave = 5
+enemies_per_wave = 10  # Startet mit 10 Gegnern
+enemies_spawned_this_wave = 0
+max_enemies_per_wave = {1: 10, 2: 15, 3: 20}
 
 # Stamina-Leiste UI
 stamina_bar_bg = Entity(model='cube', color=color.dark_gray, scale=(0.3, 0.03, 1), position=(0.6, -0.4, 0), parent=camera.ui)
@@ -859,7 +861,7 @@ class Enemy(Entity):
 
 # Funktion zum Erstellen neuer Feinde
 def spawn_enemies(count=5):
-    global enemies
+    global enemies, enemies_spawned_this_wave
     map_data = maps[current_map]
     map_size = map_data["size"]
     
@@ -886,10 +888,12 @@ def spawn_enemies(count=5):
         
         enemy = Enemy(position=(x, y, z))
         enemies.append(enemy)
+    
+    enemies_spawned_this_wave += count
 
 # Feinde erstellen
 enemies = []
-spawn_enemies(5)
+spawn_enemies(enemies_per_wave)
 
 # Spieler-Kugel-Klasse
 class Bullet(Entity):
@@ -934,12 +938,17 @@ class Bullet(Entity):
                 score += 100 * wave_number
                 enemies_killed_this_wave += 1
                 
-                # Prüfen ob Welle abgeschlossen
-                if enemies_killed_this_wave >= enemies_per_wave:
-                    global waves_completed_on_map
+                # Prüfen ob alle Feinde der Welle eliminiert wurden
+                if enemies_killed_this_wave >= enemies_per_wave and len(enemies) == 0:
+                    global waves_completed_on_map, enemies_spawned_this_wave
                     wave_number += 1
                     enemies_killed_this_wave = 0
+                    enemies_spawned_this_wave = 0
                     waves_completed_on_map += 1
+                    
+                    # Neue Wellen-Größe bestimmen
+                    wave_in_cycle = ((wave_number - 1) % 3) + 1
+                    enemies_per_wave = max_enemies_per_wave[wave_in_cycle]
                     
                     # Prüfen ob 3 Wellen auf dieser Map abgeschlossen
                     if waves_completed_on_map >= waves_per_map:
@@ -956,10 +965,16 @@ class Bullet(Entity):
                         
                         print(f"Map gewechselt zu: {maps[current_map]['name']}")
                     
-                    # Neue Feinde spawnen (mehr pro Welle)
-                    spawn_enemies(maps[current_map]["enemies"] + wave_number)
-                elif len(enemies) == 0:
-                    spawn_enemies(maps[current_map]["enemies"])
+                    # Neue Welle spawnen
+                    spawn_enemies(enemies_per_wave)
+                    print(f"Welle {wave_number} gestartet - {enemies_per_wave} Feinde")
+                
+                # Nachspawnen falls noch Feinde für diese Welle übrig sind
+                elif (len(enemies) == 0 and 
+                      enemies_spawned_this_wave < enemies_per_wave):
+                    remaining = enemies_per_wave - enemies_spawned_this_wave
+                    spawn_count = min(5, remaining)  # Maximal 5 auf einmal spawnen
+                    spawn_enemies(spawn_count)
                 return
                 
         # Prüfung auf Kollision mit Map-Objekten
@@ -1049,8 +1064,10 @@ def restart_game():
     mouse.locked = True
     
     # Map-System zurücksetzen
-    global waves_completed_on_map
+    global waves_completed_on_map, enemies_per_wave, enemies_spawned_this_wave
     waves_completed_on_map = 0
+    enemies_per_wave = 10  # Zurück zu Welle 1
+    enemies_spawned_this_wave = 0
     load_map(1)  # Zurück zur ersten Map
     
     # Fall-System zurücksetzen
@@ -1062,7 +1079,7 @@ def restart_game():
     for enemy in enemies[:]:
         destroy(enemy)
     enemies.clear()
-    spawn_enemies(5)
+    spawn_enemies(enemies_per_wave)
 
 # Fall-Tod-System
 def check_fall_death():
@@ -1269,7 +1286,9 @@ def input(key):
             for enemy in enemies[:]:
                 destroy(enemy)
             enemies.clear()
-            spawn_enemies(maps[current_map]["enemies"])
+            global enemies_spawned_this_wave
+            enemies_spawned_this_wave = 0
+            spawn_enemies(enemies_per_wave)
         elif key == 'm':  # Vorherige Map
             prev_map = current_map - 1
             if prev_map < 1:
@@ -1279,7 +1298,9 @@ def input(key):
             for enemy in enemies[:]:
                 destroy(enemy)
             enemies.clear()
-            spawn_enemies(maps[current_map]["enemies"])
+            global enemies_spawned_this_wave
+            enemies_spawned_this_wave = 0
+            spawn_enemies(enemies_per_wave)
 
 # Spiel starten
 app.run()
