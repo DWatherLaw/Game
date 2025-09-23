@@ -448,7 +448,10 @@ weapons = {
         'current_ammo': 12,
         'reload_time': 2.0,
         'bullet_speed': 20,
-        'bullet_color': color.yellow
+        'bullet_color': color.yellow,
+        'burst_mode': False,
+        'burst_count': 1,
+        'burst_delay': 0.1
     },
     'rifle': {
         'damage': 40,
@@ -457,7 +460,10 @@ weapons = {
         'current_ammo': 30,
         'reload_time': 3.0,
         'bullet_speed': 25,
-        'bullet_color': color.orange
+        'bullet_color': color.orange,
+        'burst_mode': False,
+        'burst_count': 1,
+        'burst_delay': 0.1
     },
     'shotgun': {
         'damage': 60,
@@ -466,7 +472,22 @@ weapons = {
         'current_ammo': 8,
         'reload_time': 2.5,
         'bullet_speed': 18,
-        'bullet_color': color.red
+        'bullet_color': color.red,
+        'burst_mode': False,
+        'burst_count': 1,
+        'burst_delay': 0.1
+    },
+    'machinegun': {
+        'damage': 30,
+        'fire_rate': 0.8,
+        'max_ammo': 50,
+        'current_ammo': 50,
+        'reload_time': 4.0,
+        'bullet_speed': 22,
+        'bullet_color': color.lime,
+        'burst_mode': True,
+        'burst_count': 5,
+        'burst_delay': 0.08
     }
 }
 
@@ -474,6 +495,12 @@ weapons = {
 last_shot_time = 0
 is_reloading = False
 reload_start_time = 0
+
+# Salvenfeuer-System
+is_bursting = False
+burst_shots_fired = 0
+burst_start_time = 0
+burst_queue = []
 
 # Punktesystem
 score = 0
@@ -1116,29 +1143,49 @@ def switch_weapon(new_weapon):
     if new_weapon in weapons:
         current_weapon = new_weapon
 
+# Salvenfeuer-Update-Funktion
+def update_burst_fire():
+    global is_bursting, burst_shots_fired, burst_start_time
+    
+    if is_bursting:
+        current_time = time.time()
+        weapon = weapons[current_weapon]
+        
+        # Prüfen ob Zeit für nächsten Schuss in der Salve
+        if (current_time - burst_start_time >= burst_shots_fired * weapon['burst_delay'] and
+            burst_shots_fired < weapon['burst_count'] and
+            weapon['current_ammo'] > 0):
+            
+            fire_single_shot()
+            burst_shots_fired += 1
+        
+        # Salve beenden wenn alle Schüsse abgefeuert oder keine Munition
+        if (burst_shots_fired >= weapon['burst_count'] or 
+            weapon['current_ammo'] <= 0):
+            is_bursting = False
+            burst_shots_fired = 0
+
 # Nachladen
 def reload_weapon():
-    global is_reloading, reload_start_time
-    if not is_reloading and weapons[current_weapon]['current_ammo'] < weapons[current_weapon]['max_ammo']:
+    global is_reloading, reload_start_time, is_bursting
+    if (not is_reloading and 
+        not is_bursting and 
+        weapons[current_weapon]['current_ammo'] < weapons[current_weapon]['max_ammo']):
         is_reloading = True
         reload_start_time = time.time()
+        # Salvenfeuer unterbrechen falls aktiv
+        is_bursting = False
 
-# Schießen
-def shoot():
-    global last_shot_time
-    current_time = time.time()
+# Einzelschuss abfeuern
+def fire_single_shot():
     weapon = weapons[current_weapon]
     
-    if (current_time - last_shot_time >= weapon['fire_rate'] and 
-        weapon['current_ammo'] > 0 and 
-        not is_reloading):
-        
+    if weapon['current_ammo'] > 0:
         # Kugel erstellen
         bullet = Bullet(weapon, position=camera.world_position)
         
         # Munition verringern
         weapon['current_ammo'] -= 1
-        last_shot_time = current_time
         
         # Verbesserter Muzzle Flash Effekt
         muzzle_flash = Entity(model='sphere', color=color.yellow, scale=0.3, 
@@ -1165,6 +1212,32 @@ def shoot():
             spark.animate_scale(0, duration=0.3)
             destroy(spark, delay=0.3)
 
+# Schießen (mit Salvenfeuer-Unterstützung)
+def shoot():
+    global last_shot_time, is_bursting, burst_shots_fired, burst_start_time
+    current_time = time.time()
+    weapon = weapons[current_weapon]
+    
+    if (current_time - last_shot_time >= weapon['fire_rate'] and 
+        weapon['current_ammo'] > 0 and 
+        not is_reloading and 
+        not is_bursting):
+        
+        if weapon['burst_mode']:
+            # Salvenfeuer starten
+            is_bursting = True
+            burst_shots_fired = 0
+            burst_start_time = current_time
+            last_shot_time = current_time
+            
+            # Erste Kugel sofort abfeuern
+            fire_single_shot()
+            burst_shots_fired = 1
+        else:
+            # Einzelschuss
+            fire_single_shot()
+            last_shot_time = current_time
+
 # Update-Funktion für Stamina-System
 def update():
     global current_stamina, is_sprinting, game_over, is_reloading, game_started
@@ -1185,6 +1258,9 @@ def update():
         if current_time - reload_start_time >= weapons[current_weapon]['reload_time']:
             weapons[current_weapon]['current_ammo'] = weapons[current_weapon]['max_ammo']
             is_reloading = False
+    
+    # Salvenfeuer-System verwalten
+    update_burst_fire()
     
     # Sprint-Eingabe prüfen
     if held_keys['left shift'] and current_stamina > 0:
@@ -1274,6 +1350,8 @@ def input(key):
             switch_weapon('rifle')
         elif key == '3':
             switch_weapon('shotgun')
+        elif key == '4':
+            switch_weapon('machinegun')
         elif key == 'r':
             reload_weapon()
         # Map wechseln
