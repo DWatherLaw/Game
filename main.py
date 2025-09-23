@@ -938,6 +938,8 @@ class Bullet(Entity):
         self.direction = camera.forward
         
     def update(self):
+        global score, enemies_killed_this_wave, wave_number, enemies_per_wave, waves_completed_on_map, enemies_spawned_this_wave
+        
         # Kugel vorwärts bewegen
         self.position += self.direction * self.speed * time.dt
         
@@ -951,7 +953,6 @@ class Bullet(Entity):
         for enemy in enemies[:]:  # Kopie der Liste verwenden
             dist = distance(self.position, enemy.position)
             if dist < 1.5:  # Kollision mit Feind
-                global score, enemies_killed_this_wave, wave_number
                 
                 # Partikeleffekte erstellen
                 ParticleSystem.create_blood_effect(enemy.position)
@@ -968,7 +969,6 @@ class Bullet(Entity):
                 
                 # Prüfen ob alle Feinde der Welle eliminiert wurden
                 if enemies_killed_this_wave >= enemies_per_wave and len(enemies) == 0:
-                    global waves_completed_on_map, enemies_spawned_this_wave
                     wave_number += 1
                     enemies_killed_this_wave = 0
                     enemies_spawned_this_wave = 0
@@ -1357,6 +1357,7 @@ def input(key):
             reload_weapon()
         # Map wechseln
         elif key == 'n':  # Nächste Map
+            global enemies_spawned_this_wave
             next_map = current_map + 1
             if next_map > len(maps):
                 next_map = 1
@@ -1365,10 +1366,10 @@ def input(key):
             for enemy in enemies[:]:
                 destroy(enemy)
             enemies.clear()
-            global enemies_spawned_this_wave
             enemies_spawned_this_wave = 0
             spawn_enemies(enemies_per_wave)
         elif key == 'm':  # Vorherige Map
+            global enemies_spawned_this_wave
             prev_map = current_map - 1
             if prev_map < 1:
                 prev_map = len(maps)
@@ -1377,7 +1378,6 @@ def input(key):
             for enemy in enemies[:]:
                 destroy(enemy)
             enemies.clear()
-            global enemies_spawned_this_wave
             enemies_spawned_this_wave = 0
             spawn_enemies(enemies_per_wave)
 
