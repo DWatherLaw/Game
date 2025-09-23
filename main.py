@@ -2,7 +2,6 @@ from ursina import *
 from ursina.prefabs.first_person_controller import FirstPersonController
 import random
 import json
-from menu import MainMenu
 
 # Initialisierung der Ursina-Anwendung
 app = Ursina(
@@ -20,10 +19,6 @@ camera.fov = 90
 
 # Fenster in den Vordergrund bringen
 window.color = color.black
-
-# Menü-System
-main_menu = MainMenu()
-game_started = False
 
 # Boden erstellen mit besserer Textur
 ground = Entity(model='plane', scale=30, color=color.dark_gray, collider='box')
@@ -103,6 +98,7 @@ sky = Sky()
 
 # Spieler erstellen (FirstPersonController)
 player = FirstPersonController(position=(0, 1, 0))
+mouse.locked = True
 
 # Pause-System
 paused = False
@@ -525,9 +521,6 @@ def restart_game():
     destroy(restart_button)
     destroy(quit_button)
     
-    # Highscore speichern
-    main_menu.save_highscore(score)
-    
     # Spieler zurücksetzen
     current_hp = max_hp
     current_stamina = max_stamina
@@ -605,18 +598,7 @@ def shoot():
 
 # Update-Funktion für Stamina-System
 def update():
-    global current_stamina, is_sprinting, game_over, is_reloading, game_started
-    
-    # Menü-Logik
-    if main_menu.menu_active or main_menu.settings_active or main_menu.highscore_active:
-        # Maus entsperren für Menü-Navigation
-        mouse.locked = False
-        return
-    
-    if not game_started:
-        game_started = True
-        main_menu.hide_all_menus()
-        mouse.locked = True
+    global current_stamina, is_sprinting, game_over, is_reloading
     
     if paused or game_over:
         return
@@ -693,23 +675,9 @@ def update():
 
 # Eingabe-Funktion für Schießen
 def input(key):
-    global paused, pause_text, game_started
-    
-    # Menü-Navigation
-    if main_menu.menu_active or main_menu.settings_active or main_menu.highscore_active:
-        if key == 'escape':
-            if main_menu.settings_active or main_menu.highscore_active:
-                main_menu.show_main_menu()
-            else:
-                application.quit()
-        return
+    global paused, pause_text
     
     if key == 'escape' and not game_over:
-        if not game_started:
-            main_menu.show_main_menu()
-            mouse.locked = False
-            return
-            
         paused = not paused
         if paused:
             # Spiel pausieren
@@ -722,11 +690,11 @@ def input(key):
                 destroy(pause_text)
                 pause_text = None
     
-    if not paused and not game_over and game_started and key == 'left mouse down':
+    if not paused and not game_over and key == 'left mouse down':
         shoot()
     
     # Waffe wechseln
-    if not paused and not game_over and game_started:
+    if not paused and not game_over:
         if key == '1':
             switch_weapon('pistol')
         elif key == '2':
