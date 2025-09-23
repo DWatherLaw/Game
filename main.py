@@ -386,6 +386,12 @@ sprint_speed_multiplier = 2.0
 max_hp = 100
 current_hp = max_hp
 
+# Fall-Erkennungssystem
+fall_threshold = -5.0  # Y-Position unter der der Spieler als "gefallen" gilt
+is_falling = False
+fall_start_time = 0
+fall_death_delay = 4.0  # 4 Sekunden bis zum Tod
+
 # Waffensystem
 current_weapon = 'pistol'
 weapons = {
@@ -810,11 +816,41 @@ def restart_game():
     game_over = False
     mouse.locked = True
     
+    # Fall-System zurücksetzen
+    global is_falling, fall_start_time
+    is_falling = False
+    fall_start_time = 0
+    
     # Alle Feinde entfernen und neue spawnen
     for enemy in enemies[:]:
         destroy(enemy)
     enemies.clear()
     spawn_enemies(5)
+
+# Fall-Tod-System
+def check_fall_death():
+    global is_falling, fall_start_time, current_hp
+    
+    # Prüfen ob Spieler unter die Fall-Schwelle gefallen ist
+    if player.position.y < fall_threshold:
+        if not is_falling:
+            # Fall beginnt
+            is_falling = True
+            fall_start_time = time.time()
+            print(f"Spieler fällt! Tod in {fall_death_delay} Sekunden...")
+        else:
+            # Prüfen ob 4 Sekunden vergangen sind
+            if time.time() - fall_start_time >= fall_death_delay:
+                # Spieler stirbt durch Fall
+                current_hp = 0
+                print("Spieler ist durch Fall gestorben!")
+                # Partikeleffekt für Fall-Tod
+                ParticleSystem.create_explosion(player.position, color.red)
+    else:
+        # Spieler ist wieder auf sicherem Boden
+        if is_falling:
+            is_falling = False
+            print("Spieler ist wieder sicher!")
 
 # Spiel beenden
 def quit_game():
@@ -952,6 +988,9 @@ def update():
         reload_text.enabled = True
     else:
         reload_text.enabled = False
+    
+    # Fall-Erkennung prüfen
+    check_fall_death()
 
 # Eingabe-Funktion für Schießen
 def input(key):
