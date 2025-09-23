@@ -130,6 +130,15 @@ class Enemy(Entity):
             parent=self
         )
         
+        # Linke Hand
+        self.left_hand = Entity(
+            model='cube',
+            color=color.light_gray,
+            scale=(0.1, 0.15, 0.1),
+            position=(-0.35, -0.35, 0),
+            parent=self
+        )
+        
         # Rechter Arm (Oberarm)
         self.right_arm = Entity(
             model='cube',
@@ -145,6 +154,15 @@ class Enemy(Entity):
             color=color.dark_gray,
             scale=(0.12, 0.4, 0.12),
             position=(0.35, -0.1, 0),
+            parent=self
+        )
+        
+        # Rechte Hand
+        self.right_hand = Entity(
+            model='cube',
+            color=color.light_gray,
+            scale=(0.1, 0.15, 0.1),
+            position=(0.35, -0.35, 0),
             parent=self
         )
         
