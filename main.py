@@ -1325,7 +1325,7 @@ def update():
 
 # Eingabe-Funktion für Schießen
 def input(key):
-    global paused, pause_text, game_started
+    global paused, pause_text, game_started, enemies_spawned_this_wave
     
     if key == 'escape' and not game_over:
         paused = not paused
@@ -1357,7 +1357,6 @@ def input(key):
             reload_weapon()
         # Map wechseln
         elif key == 'n':  # Nächste Map
-            global enemies_spawned_this_wave
             next_map = current_map + 1
             if next_map > len(maps):
                 next_map = 1
@@ -1369,7 +1368,6 @@ def input(key):
             enemies_spawned_this_wave = 0
             spawn_enemies(enemies_per_wave)
         elif key == 'm':  # Vorherige Map
-            global enemies_spawned_this_wave
             prev_map = current_map - 1
             if prev_map < 1:
                 prev_map = len(maps)
