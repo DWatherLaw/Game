@@ -10,7 +10,8 @@ app = Ursina(
     borderless=False,
     fullscreen=False,
     size=(1280, 720),
-    vsync=True
+    vsync=True,
+    icon=''
 )
 
 # Kamera-Einstellungen für UI
