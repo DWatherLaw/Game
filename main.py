@@ -33,7 +33,11 @@ ground = Entity(model='plane', scale=30, color=color.dark_gray, collider='box')
 
 # Beleuchtung hinzufügen
 DirectionalLight(direction=(1, -1, 1), color=color.white)
-AmbientLight(color=color.rgb(50, 50, 50))
+AmbientLight(color=color.rgb(100, 100, 100))
+
+# Zusätzliche Beleuchtung für bessere Menü-Sichtbarkeit
+menu_light = DirectionalLight(direction=(0, -1, 0), color=color.white)
+menu_light.intensity = 1.5
 
 # Partikel-System für Explosionen
 class ParticleSystem:

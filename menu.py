@@ -9,25 +9,29 @@ class MainMenu(Entity):
         self.highscore_active = False
         
         # Menü-Hintergrund
-        self.menu_background = Entity(model='cube', color=color.black, scale=(2, 2, 1), position=(0, 0, -0.5), parent=self, alpha=0.8)
+        self.menu_background = Entity(model='cube', color=color.dark_gray, scale=(2, 2, 1), position=(0, 0, -0.5), parent=self, alpha=0.9)
         
         # Titel
-        self.title = Text('ARENA SHOOTER', origin=(0, 0), scale=3, color=color.white, position=(0, 0.3, -0.1), parent=self)
+        self.title = Text('ARENA SHOOTER', origin=(0, 0), scale=3, color=color.yellow, position=(0, 0.3, -0.1), parent=self)
         
         # Hauptmenü-Container
         self.main_menu = Entity(parent=self, enabled=False)
         
         # Hauptmenü-Buttons
-        self.start_button = Button(parent=self.main_menu, text='Spiel starten', color=color.azure, scale=(0.3, 0.1), y=0.1)
-        self.highscore_button = Button(parent=self.main_menu, text='Highscores', color=color.azure, scale=(0.3, 0.1), y=-0.05)
-        self.quit_button = Button(parent=self.main_menu, text='Beenden', color=color.red, scale=(0.3, 0.1), y=-0.2)
+        self.start_button = Button(parent=self.main_menu, text='Spiel starten', color=color.cyan, scale=(0.3, 0.1), y=0.1)
+        self.start_button.text_entity.color = color.black
+        self.highscore_button = Button(parent=self.main_menu, text='Highscores', color=color.cyan, scale=(0.3, 0.1), y=-0.05)
+        self.highscore_button.text_entity.color = color.black
+        self.quit_button = Button(parent=self.main_menu, text='Beenden', color=color.orange, scale=(0.3, 0.1), y=-0.2)
+        self.quit_button.text_entity.color = color.black
         
         self.quit_button.on_click = application.quit
         
         # Highscore-Menü
         self.highscore_menu = Entity(parent=self, enabled=False)
         self.highscore_list = Text(parent=self.highscore_menu, text='', origin=(0, 0.5), y=0.4, scale=1.5)
-        self.back_button_highscore = Button(parent=self.highscore_menu, text='Zurück', color=color.azure, scale=(0.3, 0.1), y=-0.4)
+        self.back_button_highscore = Button(parent=self.highscore_menu, text='Zurück', color=color.cyan, scale=(0.3, 0.1), y=-0.4)
+        self.back_button_highscore.text_entity.color = color.black
         
         # Button-Aktionen
         self.highscore_button.on_click = self.show_highscore_menu
