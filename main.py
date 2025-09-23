@@ -72,7 +72,7 @@ class Enemy(Entity):
         # Kopf des Feindes
         self.head = Entity(
             model='cube',
-            color=color.dark_red,
+            color=color.red,
             scale=(0.8, 0.8, 0.8),
             position=(0, 0.6, 0),
             parent=self
