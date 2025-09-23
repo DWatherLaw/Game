@@ -7,6 +7,10 @@ from menu import MainMenu
 # Initialisierung der Ursina-Anwendung
 app = Ursina()
 
+# Kamera-Einstellungen für UI
+camera.orthographic = False
+camera.fov = 90
+
 # Menü-System
 main_menu = MainMenu()
 game_started = False
@@ -595,11 +599,14 @@ def update():
     
     # Menü-Logik
     if main_menu.menu_active or main_menu.settings_active or main_menu.highscore_active:
+        # Maus entsperren für Menü-Navigation
+        mouse.locked = False
         return
     
     if not game_started:
         game_started = True
         main_menu.hide_all_menus()
+        mouse.locked = True
     
     if paused or game_over:
         return
@@ -683,6 +690,8 @@ def input(key):
         if key == 'escape':
             if main_menu.settings_active or main_menu.highscore_active:
                 main_menu.show_main_menu()
+            else:
+                application.quit()
         return
     
     if key == 'escape' and not game_over:

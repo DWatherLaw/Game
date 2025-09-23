@@ -98,7 +98,6 @@ class MainMenu:
     
     def start_game(self):
         self.hide_all_menus()
-        mouse.locked = True
         # Game wird in main.py gestartet
     
     def show_settings(self):
