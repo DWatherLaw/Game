@@ -34,6 +34,7 @@ pause_text = None
 # Game Over System
 game_over = False
 game_over_menu = None
+game_over_text = None
 restart_button = None
 quit_button = None
 
@@ -208,13 +209,13 @@ class EnemyBullet(Entity):
 
 # Game Over Menü erstellen
 def show_game_over_menu():
-    global game_over_menu, restart_button, quit_button
+    global game_over_menu, game_over_text, restart_button, quit_button
     
     # Hintergrund für Game Over Menü
     game_over_menu = Entity(model='cube', color=color.black, scale=(2, 2, 1), position=(0, 0, -0.1), parent=camera.ui, alpha=0.8)
     
     # Game Over Text
-    Text('GAME OVER', origin=(0, 0), scale=3, color=color.red, position=(0, 0.2, -0.2), parent=camera.ui)
+    game_over_text = Text('GAME OVER', origin=(0, 0), scale=3, color=color.red, position=(0, 0.2, -0.2), parent=camera.ui)
     
     # Restart Button
     restart_button = Button(text='Spiel neu starten', color=color.green, scale=(0.3, 0.1), position=(-0.2, -0.1, -0.2), parent=camera.ui)
@@ -230,6 +231,7 @@ def restart_game():
     
     # Game Over Menü entfernen
     destroy(game_over_menu)
+    destroy(game_over_text)
     destroy(restart_button)
     destroy(quit_button)
     
