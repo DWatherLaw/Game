@@ -25,6 +25,9 @@ camera.fov = 90
 # Fenster in den Vordergrund bringen
 window.color = color.black
 
+# Menü initial anzeigen
+main_menu.show_main_menu()
+
 # Boden erstellen mit besserer Textur
 ground = Entity(model='plane', scale=30, color=color.dark_gray, collider='box')
 
@@ -105,6 +108,9 @@ sky = Sky()
 player = FirstPersonController(position=(0, 1, 0))
 player.disable()
 
+# Maus initial entsperren für Menü
+mouse.locked = False
+
 # Pause-System
 paused = False
 pause_text = None
@@ -171,26 +177,26 @@ wave_number = 1
 enemies_killed_this_wave = 0
 enemies_per_wave = 5
 
-# Stamina-Leiste UI
-stamina_bar_bg = Entity(model='cube', color=color.dark_gray, scale=(0.3, 0.03, 1), position=(0.6, -0.4, 0), parent=camera.ui)
-stamina_bar = Entity(model='cube', color=color.blue, scale=(0.3, 0.03, 1), position=(0.6, -0.4, -0.01), parent=camera.ui)
-stamina_text = Text('STAMINA', position=(0.45, -0.35, -0.02), scale=1, color=color.white, parent=camera.ui)
+# Stamina-Leiste UI (initial deaktiviert)
+stamina_bar_bg = Entity(model='cube', color=color.dark_gray, scale=(0.3, 0.03, 1), position=(0.6, -0.4, 0), parent=camera.ui, enabled=False)
+stamina_bar = Entity(model='cube', color=color.blue, scale=(0.3, 0.03, 1), position=(0.6, -0.4, -0.01), parent=camera.ui, enabled=False)
+stamina_text = Text('STAMINA', position=(0.45, -0.35, -0.02), scale=1, color=color.white, parent=camera.ui, enabled=False)
 
-# HP-Leiste UI
-hp_bar_bg = Entity(model='cube', color=color.dark_gray, scale=(0.3, 0.03, 1), position=(-0.6, -0.4, 0), parent=camera.ui)
-hp_bar = Entity(model='cube', color=color.red, scale=(0.3, 0.03, 1), position=(-0.6, -0.4, -0.01), parent=camera.ui)
-hp_text = Text('HP', position=(-0.75, -0.35, -0.02), scale=1, color=color.white, parent=camera.ui)
+# HP-Leiste UI (initial deaktiviert)
+hp_bar_bg = Entity(model='cube', color=color.dark_gray, scale=(0.3, 0.03, 1), position=(-0.6, -0.4, 0), parent=camera.ui, enabled=False)
+hp_bar = Entity(model='cube', color=color.red, scale=(0.3, 0.03, 1), position=(-0.6, -0.4, -0.01), parent=camera.ui, enabled=False)
+hp_text = Text('HP', position=(-0.75, -0.35, -0.02), scale=1, color=color.white, parent=camera.ui, enabled=False)
 
-# Crosshair
-crosshair_h = Entity(model='cube', color=color.white, scale=(0.02, 0.002, 1), position=(0, 0, -0.1), parent=camera.ui)
-crosshair_v = Entity(model='cube', color=color.white, scale=(0.002, 0.02, 1), position=(0, 0, -0.1), parent=camera.ui)
+# Crosshair (initial deaktiviert)
+crosshair_h = Entity(model='cube', color=color.white, scale=(0.02, 0.002, 1), position=(0, 0, -0.1), parent=camera.ui, enabled=False)
+crosshair_v = Entity(model='cube', color=color.white, scale=(0.002, 0.02, 1), position=(0, 0, -0.1), parent=camera.ui, enabled=False)
 
-# UI Texte
-ammo_text = Text('', position=(-0.9, -0.45), scale=1.5, color=color.white, parent=camera.ui)
-weapon_text = Text('', position=(-0.9, -0.4), scale=1, color=color.white, parent=camera.ui)
-score_text = Text('', position=(-0.9, 0.45), scale=1.5, color=color.white, parent=camera.ui)
-wave_text = Text('', position=(-0.9, 0.4), scale=1, color=color.white, parent=camera.ui)
-reload_text = Text('', position=(0, -0.2), scale=2, color=color.red, parent=camera.ui)
+# UI Texte (initial deaktiviert)
+ammo_text = Text('', position=(-0.9, -0.45), scale=1.5, color=color.white, parent=camera.ui, enabled=False)
+weapon_text = Text('', position=(-0.9, -0.4), scale=1, color=color.white, parent=camera.ui, enabled=False)
+score_text = Text('', position=(-0.9, 0.45), scale=1.5, color=color.white, parent=camera.ui, enabled=False)
+wave_text = Text('', position=(-0.9, 0.4), scale=1, color=color.white, parent=camera.ui, enabled=False)
+reload_text = Text('', position=(0, -0.2), scale=2, color=color.red, parent=camera.ui, enabled=False)
 
 # Enemy-Klasse
 class Enemy(Entity):
@@ -725,6 +731,10 @@ def start_game():
     main_menu.hide_all_menus()
     mouse.locked = True
     player.enable()
+    # UI-Elemente für das Spiel aktivieren
+    for ui_element in [stamina_bar_bg, stamina_bar, stamina_text, hp_bar_bg, hp_bar, hp_text, 
+                       crosshair_h, crosshair_v, ammo_text, weapon_text, score_text, wave_text]:
+        ui_element.enabled = True
 
 main_menu.start_button.on_click = start_game
 

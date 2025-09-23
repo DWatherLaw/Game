@@ -5,11 +5,17 @@ class MainMenu(Entity):
     def __init__(self, **kwargs):
         super().__init__(parent=camera.ui, ignore_paused=True)
 
-        self.menu_active = True
+        self.menu_active = False
         self.highscore_active = False
         
+        # Menü-Hintergrund
+        self.menu_background = Entity(model='cube', color=color.black, scale=(2, 2, 1), position=(0, 0, -0.5), parent=self, alpha=0.8)
+        
+        # Titel
+        self.title = Text('ARENA SHOOTER', origin=(0, 0), scale=3, color=color.white, position=(0, 0.3, -0.1), parent=self)
+        
         # Hauptmenü-Container
-        self.main_menu = Entity(parent=self, enabled=True)
+        self.main_menu = Entity(parent=self, enabled=False)
         
         # Hauptmenü-Buttons
         self.start_button = Button(parent=self.main_menu, text='Spiel starten', color=color.azure, scale=(0.3, 0.1), y=0.1)
@@ -30,8 +36,11 @@ class MainMenu(Entity):
     def show_main_menu(self):
         self.menu_active = True
         self.highscore_active = False
+        self.enabled = True
         self.main_menu.enable()
         self.highscore_menu.disable()
+        self.title.enabled = True
+        self.menu_background.enabled = True
 
     def show_highscore_menu(self):
         self.menu_active = False
@@ -45,6 +54,8 @@ class MainMenu(Entity):
         self.highscore_active = False
         self.main_menu.disable()
         self.highscore_menu.disable()
+        self.title.enabled = False
+        self.menu_background.enabled = False
         self.enabled = False
 
     def load_highscores(self):
