@@ -2,7 +2,6 @@ from ursina import *
 from ursina.prefabs.first_person_controller import FirstPersonController
 import random
 import json
-from menu import MainMenu
 
 # Initialisierung der Ursina-Anwendung
 app = Ursina(
@@ -14,10 +13,6 @@ app = Ursina(
     icon=''
 )
 
-# Menü-System
-main_menu = MainMenu()
-game_started = False
-
 # Kamera-Einstellungen für UI
 camera.orthographic = False
 camera.fov = 90
@@ -25,8 +20,8 @@ camera.fov = 90
 # Fenster in den Vordergrund bringen
 window.color = color.black
 
-# Menü initial anzeigen
-main_menu.show_main_menu()
+# Spiel direkt starten
+game_started = True
 
 # Boden erstellen mit besserer Textur
 ground = Entity(model='plane', scale=30, color=color.dark_gray, collider='box')
@@ -110,10 +105,9 @@ sky = Sky()
 
 # Spieler erstellen (FirstPersonController)
 player = FirstPersonController(position=(0, 1, 0))
-player.disable()
 
-# Maus initial entsperren für Menü
-mouse.locked = False
+# Maus für Spiel sperren
+mouse.locked = True
 
 # Pause-System
 paused = False
@@ -181,26 +175,26 @@ wave_number = 1
 enemies_killed_this_wave = 0
 enemies_per_wave = 5
 
-# Stamina-Leiste UI (initial deaktiviert)
-stamina_bar_bg = Entity(model='cube', color=color.dark_gray, scale=(0.3, 0.03, 1), position=(0.6, -0.4, 0), parent=camera.ui, enabled=False)
-stamina_bar = Entity(model='cube', color=color.blue, scale=(0.3, 0.03, 1), position=(0.6, -0.4, -0.01), parent=camera.ui, enabled=False)
-stamina_text = Text('STAMINA', position=(0.45, -0.35, -0.02), scale=1, color=color.white, parent=camera.ui, enabled=False)
+# Stamina-Leiste UI
+stamina_bar_bg = Entity(model='cube', color=color.dark_gray, scale=(0.3, 0.03, 1), position=(0.6, -0.4, 0), parent=camera.ui)
+stamina_bar = Entity(model='cube', color=color.blue, scale=(0.3, 0.03, 1), position=(0.6, -0.4, -0.01), parent=camera.ui)
+stamina_text = Text('STAMINA', position=(0.45, -0.35, -0.02), scale=1, color=color.white, parent=camera.ui)
 
-# HP-Leiste UI (initial deaktiviert)
-hp_bar_bg = Entity(model='cube', color=color.dark_gray, scale=(0.3, 0.03, 1), position=(-0.6, -0.4, 0), parent=camera.ui, enabled=False)
-hp_bar = Entity(model='cube', color=color.red, scale=(0.3, 0.03, 1), position=(-0.6, -0.4, -0.01), parent=camera.ui, enabled=False)
-hp_text = Text('HP', position=(-0.75, -0.35, -0.02), scale=1, color=color.white, parent=camera.ui, enabled=False)
+# HP-Leiste UI
+hp_bar_bg = Entity(model='cube', color=color.dark_gray, scale=(0.3, 0.03, 1), position=(-0.6, -0.4, 0), parent=camera.ui)
+hp_bar = Entity(model='cube', color=color.red, scale=(0.3, 0.03, 1), position=(-0.6, -0.4, -0.01), parent=camera.ui)
+hp_text = Text('HP', position=(-0.75, -0.35, -0.02), scale=1, color=color.white, parent=camera.ui)
 
-# Crosshair (initial deaktiviert)
-crosshair_h = Entity(model='cube', color=color.white, scale=(0.02, 0.002, 1), position=(0, 0, -0.1), parent=camera.ui, enabled=False)
-crosshair_v = Entity(model='cube', color=color.white, scale=(0.002, 0.02, 1), position=(0, 0, -0.1), parent=camera.ui, enabled=False)
+# Crosshair
+crosshair_h = Entity(model='cube', color=color.white, scale=(0.02, 0.002, 1), position=(0, 0, -0.1), parent=camera.ui)
+crosshair_v = Entity(model='cube', color=color.white, scale=(0.002, 0.02, 1), position=(0, 0, -0.1), parent=camera.ui)
 
-# UI Texte (initial deaktiviert)
-ammo_text = Text('', position=(-0.9, -0.45), scale=1.5, color=color.white, parent=camera.ui, enabled=False)
-weapon_text = Text('', position=(-0.9, -0.4), scale=1, color=color.white, parent=camera.ui, enabled=False)
-score_text = Text('', position=(-0.9, 0.45), scale=1.5, color=color.white, parent=camera.ui, enabled=False)
-wave_text = Text('', position=(-0.9, 0.4), scale=1, color=color.white, parent=camera.ui, enabled=False)
-reload_text = Text('', position=(0, -0.2), scale=2, color=color.red, parent=camera.ui, enabled=False)
+# UI Texte
+ammo_text = Text('', position=(-0.9, -0.45), scale=1.5, color=color.white, parent=camera.ui)
+weapon_text = Text('', position=(-0.9, -0.4), scale=1, color=color.white, parent=camera.ui)
+score_text = Text('', position=(-0.9, 0.45), scale=1.5, color=color.white, parent=camera.ui)
+wave_text = Text('', position=(-0.9, 0.4), scale=1, color=color.white, parent=camera.ui)
+reload_text = Text('', position=(0, -0.2), scale=2, color=color.red, parent=camera.ui)
 
 # Enemy-Klasse
 class Enemy(Entity):
@@ -536,9 +530,6 @@ def restart_game():
     destroy(restart_button)
     destroy(quit_button)
     
-    # Highscore speichern
-    main_menu.save_highscore(score)
-    
     # Spieler zurücksetzen
     current_hp = max_hp
     current_stamina = max_stamina
@@ -618,11 +609,8 @@ def shoot():
 def update():
     global current_stamina, is_sprinting, game_over, is_reloading, game_started
     
-    if not game_started:
-        mouse.locked = False
-    else:
-        if paused or game_over:
-            return
+    if paused or game_over:
+        return
         
         # Game Over prüfen
         if current_hp <= 0 and not game_over:
@@ -698,49 +686,32 @@ def update():
 def input(key):
     global paused, pause_text, game_started
     
-    if not game_started:
-        if key == 'escape' and main_menu.highscore_active:
-            main_menu.show_main_menu()
-    else:
-        if key == 'escape' and not game_over:
-            paused = not paused
-            if paused:
-                # Spiel pausieren
-                mouse.locked = False
-                pause_text = Text('PAUSE', origin=(0, 0), scale=5, color=color.white)
-            else:
-                # Spiel fortsetzen
-                mouse.locked = True
-                if pause_text:
-                    destroy(pause_text)
-                    pause_text = None
-        
-        if not paused and not game_over and key == 'left mouse down':
-            shoot()
-        
-        # Waffe wechseln
-        if not paused and not game_over:
-            if key == '1':
-                switch_weapon('pistol')
-            elif key == '2':
-                switch_weapon('rifle')
-            elif key == '3':
-                switch_weapon('shotgun')
-            elif key == 'r':
-                reload_weapon()
-
-def start_game():
-    global game_started
-    game_started = True
-    main_menu.hide_all_menus()
-    mouse.locked = True
-    player.enable()
-    # UI-Elemente für das Spiel aktivieren
-    for ui_element in [stamina_bar_bg, stamina_bar, stamina_text, hp_bar_bg, hp_bar, hp_text, 
-                       crosshair_h, crosshair_v, ammo_text, weapon_text, score_text, wave_text]:
-        ui_element.enabled = True
-
-main_menu.start_button.on_click = start_game
+    if key == 'escape' and not game_over:
+        paused = not paused
+        if paused:
+            # Spiel pausieren
+            mouse.locked = False
+            pause_text = Text('PAUSE', origin=(0, 0), scale=5, color=color.white)
+        else:
+            # Spiel fortsetzen
+            mouse.locked = True
+            if pause_text:
+                destroy(pause_text)
+                pause_text = None
+    
+    if not paused and not game_over and key == 'left mouse down':
+        shoot()
+    
+    # Waffe wechseln
+    if not paused and not game_over:
+        if key == '1':
+            switch_weapon('pistol')
+        elif key == '2':
+            switch_weapon('rifle')
+        elif key == '3':
+            switch_weapon('shotgun')
+        elif key == 'r':
+            reload_weapon()
 
 # Spiel starten
 app.run()
