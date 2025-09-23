@@ -50,6 +50,49 @@ sprint_speed_multiplier = 2.0
 max_hp = 100
 current_hp = max_hp
 
+# Waffensystem
+current_weapon = 'pistol'
+weapons = {
+    'pistol': {
+        'damage': 25,
+        'fire_rate': 0.5,
+        'max_ammo': 12,
+        'current_ammo': 12,
+        'reload_time': 2.0,
+        'bullet_speed': 20,
+        'bullet_color': color.yellow
+    },
+    'rifle': {
+        'damage': 40,
+        'fire_rate': 0.3,
+        'max_ammo': 30,
+        'current_ammo': 30,
+        'reload_time': 3.0,
+        'bullet_speed': 25,
+        'bullet_color': color.orange
+    },
+    'shotgun': {
+        'damage': 60,
+        'fire_rate': 1.0,
+        'max_ammo': 8,
+        'current_ammo': 8,
+        'reload_time': 2.5,
+        'bullet_speed': 18,
+        'bullet_color': color.red
+    }
+}
+
+# Schießsystem
+last_shot_time = 0
+is_reloading = False
+reload_start_time = 0
+
+# Punktesystem
+score = 0
+wave_number = 1
+enemies_killed_this_wave = 0
+enemies_per_wave = 5
+
 # Stamina-Leiste UI
 stamina_bar_bg = Entity(model='cube', color=color.dark_gray, scale=(0.3, 0.03, 1), position=(0.6, -0.4, 0), parent=camera.ui)
 stamina_bar = Entity(model='cube', color=color.blue, scale=(0.3, 0.03, 1), position=(0.6, -0.4, -0.01), parent=camera.ui)
@@ -59,6 +102,17 @@ stamina_text = Text('STAMINA', position=(0.45, -0.35, -0.02), scale=1, color=col
 hp_bar_bg = Entity(model='cube', color=color.dark_gray, scale=(0.3, 0.03, 1), position=(-0.6, -0.4, 0), parent=camera.ui)
 hp_bar = Entity(model='cube', color=color.red, scale=(0.3, 0.03, 1), position=(-0.6, -0.4, -0.01), parent=camera.ui)
 hp_text = Text('HP', position=(-0.75, -0.35, -0.02), scale=1, color=color.white, parent=camera.ui)
+
+# Crosshair
+crosshair_h = Entity(model='cube', color=color.white, scale=(0.02, 0.002, 1), position=(0, 0, -0.1), parent=camera.ui)
+crosshair_v = Entity(model='cube', color=color.white, scale=(0.002, 0.02, 1), position=(0, 0, -0.1), parent=camera.ui)
+
+# UI Texte
+ammo_text = Text('', position=(-0.9, -0.45), scale=1.5, color=color.white, parent=camera.ui)
+weapon_text = Text('', position=(-0.9, -0.4), scale=1, color=color.white, parent=camera.ui)
+score_text = Text('', position=(-0.9, 0.45), scale=1.5, color=color.white, parent=camera.ui)
+wave_text = Text('', position=(-0.9, 0.4), scale=1, color=color.white, parent=camera.ui)
+reload_text = Text('', position=(0, -0.2), scale=2, color=color.red, parent=camera.ui)
 
 # Enemy-Klasse
 class Enemy(Entity):
@@ -264,14 +318,15 @@ spawn_enemies(5)
 
 # Spieler-Kugel-Klasse
 class Bullet(Entity):
-    def __init__(self, **kwargs):
+    def __init__(self, weapon_stats, **kwargs):
         super().__init__(
             model='sphere',
-            color=color.black,
+            color=weapon_stats['bullet_color'],
             scale=0.1,
             **kwargs
         )
-        self.speed = 20
+        self.speed = weapon_stats['bullet_speed']
+        self.damage = weapon_stats['damage']
         self.lifetime = 2.0
         self.direction = camera.forward
         
@@ -289,12 +344,23 @@ class Bullet(Entity):
         for enemy in enemies[:]:  # Kopie der Liste verwenden
             dist = distance(self.position, enemy.position)
             if dist < 1.5:  # Kollision mit Feind
+                global score, enemies_killed_this_wave, wave_number
+                
+                # Feind eliminieren
                 enemies.remove(enemy)
                 destroy(enemy)
                 destroy(self)
                 
-                # Neue Feinde spawnen wenn alle eliminiert wurden
-                if len(enemies) == 0:
+                # Score erhöhen
+                score += 100 * wave_number
+                enemies_killed_this_wave += 1
+                
+                # Prüfen ob Welle abgeschlossen
+                if enemies_killed_this_wave >= enemies_per_wave:
+                    wave_number += 1
+                    enemies_killed_this_wave = 0
+                    spawn_enemies(5 + wave_number)  # Mehr Feinde pro Welle
+                elif len(enemies) == 0:
                     spawn_enemies(5)
                 return
                 
@@ -391,9 +457,44 @@ def restart_game():
 def quit_game():
     application.quit()
 
+# Waffe wechseln
+def switch_weapon(new_weapon):
+    global current_weapon
+    if new_weapon in weapons:
+        current_weapon = new_weapon
+
+# Nachladen
+def reload_weapon():
+    global is_reloading, reload_start_time
+    if not is_reloading and weapons[current_weapon]['current_ammo'] < weapons[current_weapon]['max_ammo']:
+        is_reloading = True
+        reload_start_time = time.time()
+
+# Schießen
+def shoot():
+    global last_shot_time
+    current_time = time.time()
+    weapon = weapons[current_weapon]
+    
+    if (current_time - last_shot_time >= weapon['fire_rate'] and 
+        weapon['current_ammo'] > 0 and 
+        not is_reloading):
+        
+        # Kugel erstellen
+        bullet = Bullet(weapon, position=camera.world_position)
+        
+        # Munition verringern
+        weapon['current_ammo'] -= 1
+        last_shot_time = current_time
+        
+        # Muzzle Flash Effekt
+        muzzle_flash = Entity(model='sphere', color=color.yellow, scale=0.3, 
+                             position=camera.world_position + camera.forward * 2)
+        destroy(muzzle_flash, delay=0.1)
+
 # Update-Funktion für Stamina-System
 def update():
-    global current_stamina, is_sprinting, game_over
+    global current_stamina, is_sprinting, game_over, is_reloading
     
     if paused or game_over:
         return
@@ -404,6 +505,13 @@ def update():
         mouse.locked = False
         show_game_over_menu()
         return
+    
+    # Nachladen prüfen
+    if is_reloading:
+        current_time = time.time()
+        if current_time - reload_start_time >= weapons[current_weapon]['reload_time']:
+            weapons[current_weapon]['current_ammo'] = weapons[current_weapon]['max_ammo']
+            is_reloading = False
     
     # Sprint-Eingabe prüfen
     if held_keys['left shift'] and current_stamina > 0:
@@ -446,6 +554,20 @@ def update():
     
     # Position des roten Balkens anpassen, damit er links am Hintergrund ausgerichtet ist
     hp_bar.x = -0.6 - (0.3 * (1 - hp_percentage)) / 2
+    
+    # UI Texte aktualisieren
+    weapon = weapons[current_weapon]
+    ammo_text.text = f'Munition: {weapon["current_ammo"]}/{weapon["max_ammo"]}'
+    weapon_text.text = f'Waffe: {current_weapon.upper()}'
+    score_text.text = f'Score: {score}'
+    wave_text.text = f'Welle: {wave_number}'
+    
+    # Nachladen-Text anzeigen
+    if is_reloading:
+        reload_text.text = 'NACHLADEN...'
+        reload_text.enabled = True
+    else:
+        reload_text.enabled = False
 
 # Eingabe-Funktion für Schießen
 def input(key):
@@ -465,8 +587,18 @@ def input(key):
                 pause_text = None
     
     if not paused and not game_over and key == 'left mouse down':
-        # Kugel an der Kameraposition erstellen
-        bullet = Bullet(position=camera.world_position)
+        shoot()
+    
+    # Waffe wechseln
+    if not paused and not game_over:
+        if key == '1':
+            switch_weapon('pistol')
+        elif key == '2':
+            switch_weapon('rifle')
+        elif key == '3':
+            switch_weapon('shotgun')
+        elif key == 'r':
+            reload_weapon()
 
 # Spiel starten
 app.run()
