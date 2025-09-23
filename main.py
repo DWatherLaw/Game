@@ -85,39 +85,120 @@ class Enemy(Entity):
             parent=self
         )
         
-        # Linker Arm
+        # Gesicht - Linkes Auge
+        self.left_eye = Entity(
+            model='cube',
+            color=color.black,
+            scale=(0.08, 0.08, 0.08),
+            position=(-0.12, 0.9, 0.26),
+            parent=self
+        )
+        
+        # Gesicht - Rechtes Auge
+        self.right_eye = Entity(
+            model='cube',
+            color=color.black,
+            scale=(0.08, 0.08, 0.08),
+            position=(0.12, 0.9, 0.26),
+            parent=self
+        )
+        
+        # Gesicht - Mund
+        self.mouth = Entity(
+            model='cube',
+            color=color.black,
+            scale=(0.15, 0.05, 0.05),
+            position=(0, 0.75, 0.26),
+            parent=self
+        )
+        
+        # Linker Arm (Oberarm)
         self.left_arm = Entity(
             model='cube',
             color=color.dark_gray,
-            scale=(0.2, 0.8, 0.2),
-            position=(-0.4, 0.2, 0),
+            scale=(0.15, 0.5, 0.15),
+            position=(-0.35, 0.4, 0),
             parent=self
         )
         
-        # Rechter Arm
+        # Linker Unterarm
+        self.left_forearm = Entity(
+            model='cube',
+            color=color.dark_gray,
+            scale=(0.12, 0.4, 0.12),
+            position=(-0.35, -0.1, 0),
+            parent=self
+        )
+        
+        # Rechter Arm (Oberarm)
         self.right_arm = Entity(
             model='cube',
             color=color.dark_gray,
-            scale=(0.2, 0.8, 0.2),
-            position=(0.4, 0.2, 0),
+            scale=(0.15, 0.5, 0.15),
+            position=(0.35, 0.4, 0),
             parent=self
         )
         
-        # Linkes Bein
+        # Rechter Unterarm
+        self.right_forearm = Entity(
+            model='cube',
+            color=color.dark_gray,
+            scale=(0.12, 0.4, 0.12),
+            position=(0.35, -0.1, 0),
+            parent=self
+        )
+        
+        # Linkes Bein (Oberschenkel)
         self.left_leg = Entity(
             model='cube',
             color=color.gray,
-            scale=(0.25, 0.8, 0.25),
-            position=(-0.15, -0.8, 0),
+            scale=(0.2, 0.5, 0.2),
+            position=(-0.15, -0.4, 0),
             parent=self
         )
         
-        # Rechtes Bein
+        # Linkes Schienbein
+        self.left_shin = Entity(
+            model='cube',
+            color=color.gray,
+            scale=(0.18, 0.5, 0.18),
+            position=(-0.15, -0.9, 0),
+            parent=self
+        )
+        
+        # Rechtes Bein (Oberschenkel)
         self.right_leg = Entity(
             model='cube',
             color=color.gray,
-            scale=(0.25, 0.8, 0.25),
-            position=(0.15, -0.8, 0),
+            scale=(0.2, 0.5, 0.2),
+            position=(0.15, -0.4, 0),
+            parent=self
+        )
+        
+        # Rechtes Schienbein
+        self.right_shin = Entity(
+            model='cube',
+            color=color.gray,
+            scale=(0.18, 0.5, 0.18),
+            position=(0.15, -0.9, 0),
+            parent=self
+        )
+        
+        # Linker Fuß
+        self.left_foot = Entity(
+            model='cube',
+            color=color.black,
+            scale=(0.25, 0.1, 0.4),
+            position=(-0.15, -1.2, 0.1),
+            parent=self
+        )
+        
+        # Rechter Fuß
+        self.right_foot = Entity(
+            model='cube',
+            color=color.black,
+            scale=(0.25, 0.1, 0.4),
+            position=(0.15, -1.2, 0.1),
             parent=self
         )
     
