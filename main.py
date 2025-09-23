@@ -5,11 +5,20 @@ import json
 from menu import MainMenu
 
 # Initialisierung der Ursina-Anwendung
-app = Ursina()
+app = Ursina(
+    title='Arena Shooter',
+    borderless=False,
+    fullscreen=False,
+    size=(1280, 720),
+    vsync=True
+)
 
 # Kamera-Einstellungen für UI
 camera.orthographic = False
 camera.fov = 90
+
+# Fenster in den Vordergrund bringen
+window.color = color.black
 
 # Menü-System
 main_menu = MainMenu()
