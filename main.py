@@ -65,10 +65,10 @@ class Enemy(Entity):
     def __init__(self, position, **kwargs):
         super().__init__(
             model='cube',
-            scale=(1, 2, 1),
+            scale=(0.6, 1.2, 0.4),  # Torso - schmaler und realistischer
             position=position,
             collider='box',
-            color=color.red,
+            color=color.dark_gray,  # Körperfarbe
             **kwargs
         )
         
@@ -79,9 +79,45 @@ class Enemy(Entity):
         # Kopf des Feindes
         self.head = Entity(
             model='cube',
-            color=color.red,
-            scale=(0.8, 0.8, 0.8),
-            position=(0, 0.6, 0),
+            color=color.light_gray,
+            scale=(0.5, 0.5, 0.5),
+            position=(0, 0.85, 0),
+            parent=self
+        )
+        
+        # Linker Arm
+        self.left_arm = Entity(
+            model='cube',
+            color=color.dark_gray,
+            scale=(0.2, 0.8, 0.2),
+            position=(-0.4, 0.2, 0),
+            parent=self
+        )
+        
+        # Rechter Arm
+        self.right_arm = Entity(
+            model='cube',
+            color=color.dark_gray,
+            scale=(0.2, 0.8, 0.2),
+            position=(0.4, 0.2, 0),
+            parent=self
+        )
+        
+        # Linkes Bein
+        self.left_leg = Entity(
+            model='cube',
+            color=color.gray,
+            scale=(0.25, 0.8, 0.25),
+            position=(-0.15, -0.8, 0),
+            parent=self
+        )
+        
+        # Rechtes Bein
+        self.right_leg = Entity(
+            model='cube',
+            color=color.gray,
+            scale=(0.25, 0.8, 0.25),
+            position=(0.15, -0.8, 0),
             parent=self
         )
     
