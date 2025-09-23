@@ -31,6 +31,12 @@ player = FirstPersonController(position=(0, 1, 0))
 paused = False
 pause_text = None
 
+# Game Over System
+game_over = False
+game_over_menu = None
+restart_button = None
+quit_button = None
+
 # Stamina-System
 max_stamina = 100
 current_stamina = max_stamina
@@ -200,11 +206,62 @@ class EnemyBullet(Entity):
             self.intersects(wall_west)):
             destroy(self)
 
+# Game Over Menü erstellen
+def show_game_over_menu():
+    global game_over_menu, restart_button, quit_button
+    
+    # Hintergrund für Game Over Menü
+    game_over_menu = Entity(model='cube', color=color.black, scale=(2, 2, 1), position=(0, 0, -0.1), parent=camera.ui, alpha=0.8)
+    
+    # Game Over Text
+    Text('GAME OVER', origin=(0, 0), scale=3, color=color.red, position=(0, 0.2, -0.2), parent=camera.ui)
+    
+    # Restart Button
+    restart_button = Button(text='Spiel neu starten', color=color.green, scale=(0.3, 0.1), position=(-0.2, -0.1, -0.2), parent=camera.ui)
+    restart_button.on_click = restart_game
+    
+    # Quit Button  
+    quit_button = Button(text='Beenden', color=color.red, scale=(0.3, 0.1), position=(0.2, -0.1, -0.2), parent=camera.ui)
+    quit_button.on_click = quit_game
+
+# Spiel neu starten
+def restart_game():
+    global current_hp, current_stamina, game_over, enemies
+    
+    # Game Over Menü entfernen
+    destroy(game_over_menu)
+    destroy(restart_button)
+    destroy(quit_button)
+    
+    # Spieler zurücksetzen
+    current_hp = max_hp
+    current_stamina = max_stamina
+    player.position = (0, 1, 0)
+    game_over = False
+    mouse.locked = True
+    
+    # Alle Feinde entfernen und neue spawnen
+    for enemy in enemies[:]:
+        destroy(enemy)
+    enemies.clear()
+    spawn_enemies(5)
+
+# Spiel beenden
+def quit_game():
+    application.quit()
+
 # Update-Funktion für Stamina-System
 def update():
-    global current_stamina, is_sprinting
+    global current_stamina, is_sprinting, game_over
     
-    if paused:
+    if paused or game_over:
+        return
+    
+    # Game Over prüfen
+    if current_hp <= 0 and not game_over:
+        game_over = True
+        mouse.locked = False
+        show_game_over_menu()
         return
     
     # Sprint-Eingabe prüfen
@@ -253,7 +310,7 @@ def update():
 def input(key):
     global paused, pause_text
     
-    if key == 'escape':
+    if key == 'escape' and not game_over:
         paused = not paused
         if paused:
             # Spiel pausieren
@@ -266,7 +323,7 @@ def input(key):
                 destroy(pause_text)
                 pause_text = None
     
-    if not paused and key == 'left mouse down':
+    if not paused and not game_over and key == 'left mouse down':
         # Kugel an der Kameraposition erstellen
         bullet = Bullet(position=camera.world_position)
 
