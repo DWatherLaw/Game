@@ -1007,9 +1007,13 @@ class Bullet(Entity):
                 
         # Prüfung auf Kollision mit Map-Objekten
         for map_obj in map_objects:
-            if self.intersects(map_obj):
-                destroy(self)
-                return
+            if map_obj != ground:  # Boden ignorieren
+                # Verbesserte Kollisionserkennung
+                if (abs(self.position.x - map_obj.position.x) < map_obj.scale_x + 0.1 and
+                    abs(self.position.y - map_obj.position.y) < map_obj.scale_y + 0.1 and
+                    abs(self.position.z - map_obj.position.z) < map_obj.scale_z + 0.1):
+                    destroy(self)
+                    return
 
 # Feindliche Kugel-Klasse
 class EnemyBullet(Entity):
@@ -1049,9 +1053,13 @@ class EnemyBullet(Entity):
                 
         # Prüfung auf Kollision mit Map-Objekten
         for map_obj in map_objects:
-            if self.intersects(map_obj):
-                destroy(self)
-                return
+            if map_obj != ground:  # Boden ignorieren
+                # Verbesserte Kollisionserkennung
+                if (abs(self.position.x - map_obj.position.x) < map_obj.scale_x + 0.1 and
+                    abs(self.position.y - map_obj.position.y) < map_obj.scale_y + 0.1 and
+                    abs(self.position.z - map_obj.position.z) < map_obj.scale_z + 0.1):
+                    destroy(self)
+                    return
 
 # Game Over Menü erstellen
 def show_game_over_menu():
