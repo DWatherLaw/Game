@@ -1,25 +1,88 @@
 from ursina import *
 from ursina.prefabs.first_person_controller import FirstPersonController
 import random
+import json
+from menu import MainMenu
 
 # Initialisierung der Ursina-Anwendung
 app = Ursina()
 
-# Boden erstellen
-ground = Entity(model='plane', scale=30, color=color.green, collider='box')
+# Menü-System
+main_menu = MainMenu()
+game_started = False
 
-# Wände erstellen (vier Wände um die Arena)
+# Boden erstellen mit besserer Textur
+ground = Entity(model='plane', scale=30, color=color.dark_gray, collider='box')
+
+# Beleuchtung hinzufügen
+DirectionalLight(direction=(1, -1, 1), color=color.white)
+AmbientLight(color=color.rgb(50, 50, 50))
+
+# Partikel-System für Explosionen
+class ParticleSystem:
+    @staticmethod
+    def create_explosion(position, color_particle=color.orange):
+        for i in range(15):
+            particle = Entity(
+                model='cube',
+                color=color_particle,
+                scale=random.uniform(0.05, 0.15),
+                position=position + Vec3(
+                    random.uniform(-0.5, 0.5),
+                    random.uniform(-0.5, 0.5),
+                    random.uniform(-0.5, 0.5)
+                )
+            )
+            
+            # Partikel-Animation
+            particle.animate_scale(0, duration=1.0)
+            particle.animate_position(
+                particle.position + Vec3(
+                    random.uniform(-2, 2),
+                    random.uniform(0, 3),
+                    random.uniform(-2, 2)
+                ),
+                duration=1.0
+            )
+            destroy(particle, delay=1.0)
+    
+    @staticmethod
+    def create_blood_effect(position):
+        for i in range(8):
+            particle = Entity(
+                model='cube',
+                color=color.red,
+                scale=random.uniform(0.03, 0.08),
+                position=position + Vec3(
+                    random.uniform(-0.3, 0.3),
+                    random.uniform(-0.3, 0.3),
+                    random.uniform(-0.3, 0.3)
+                )
+            )
+            
+            particle.animate_scale(0, duration=0.5)
+            particle.animate_position(
+                particle.position + Vec3(
+                    random.uniform(-1, 1),
+                    random.uniform(-2, 0),
+                    random.uniform(-1, 1)
+                ),
+                duration=0.5
+            )
+            destroy(particle, delay=0.5)
+
+# Wände erstellen (vier Wände um die Arena) mit besseren Texturen
 wall_height = 5
 arena_size = 15
 
 # Nördliche Wand
-wall_north = Entity(model='cube', position=(0, wall_height/2, arena_size), scale=(arena_size*2, wall_height, 1), color=color.gray, collider='box')
+wall_north = Entity(model='cube', position=(0, wall_height/2, arena_size), scale=(arena_size*2, wall_height, 1), color=color.rgb(80, 80, 80), collider='box')
 # Südliche Wand  
-wall_south = Entity(model='cube', position=(0, wall_height/2, -arena_size), scale=(arena_size*2, wall_height, 1), color=color.gray, collider='box')
+wall_south = Entity(model='cube', position=(0, wall_height/2, -arena_size), scale=(arena_size*2, wall_height, 1), color=color.rgb(80, 80, 80), collider='box')
 # Östliche Wand
-wall_east = Entity(model='cube', position=(arena_size, wall_height/2, 0), scale=(1, wall_height, arena_size*2), color=color.gray, collider='box')
+wall_east = Entity(model='cube', position=(arena_size, wall_height/2, 0), scale=(1, wall_height, arena_size*2), color=color.rgb(80, 80, 80), collider='box')
 # Westliche Wand
-wall_west = Entity(model='cube', position=(-arena_size, wall_height/2, 0), scale=(1, wall_height, arena_size*2), color=color.gray, collider='box')
+wall_west = Entity(model='cube', position=(-arena_size, wall_height/2, 0), scale=(1, wall_height, arena_size*2), color=color.rgb(80, 80, 80), collider='box')
 
 # Himmel erstellen
 sky = Sky()
@@ -346,6 +409,10 @@ class Bullet(Entity):
             if dist < 1.5:  # Kollision mit Feind
                 global score, enemies_killed_this_wave, wave_number
                 
+                # Partikeleffekte erstellen
+                ParticleSystem.create_blood_effect(enemy.position)
+                ParticleSystem.create_explosion(enemy.position, color.red)
+                
                 # Feind eliminieren
                 enemies.remove(enemy)
                 destroy(enemy)
@@ -401,6 +468,10 @@ class EnemyBullet(Entity):
             global current_hp
             current_hp -= 10  # 10 HP Schaden
             current_hp = max(0, current_hp)
+            
+            # Schaden-Partikeleffekt
+            ParticleSystem.create_blood_effect(player.position)
+            
             destroy(self)
             return
                 
@@ -432,7 +503,7 @@ def show_game_over_menu():
 
 # Spiel neu starten
 def restart_game():
-    global current_hp, current_stamina, game_over, enemies
+    global current_hp, current_stamina, game_over, enemies, score, wave_number, enemies_killed_this_wave
     
     # Game Over Menü entfernen
     destroy(game_over_menu)
@@ -440,9 +511,15 @@ def restart_game():
     destroy(restart_button)
     destroy(quit_button)
     
+    # Highscore speichern
+    main_menu.save_highscore(score)
+    
     # Spieler zurücksetzen
     current_hp = max_hp
     current_stamina = max_stamina
+    score = 0
+    wave_number = 1
+    enemies_killed_this_wave = 0
     player.position = (0, 1, 0)
     game_over = False
     mouse.locked = True
@@ -487,14 +564,42 @@ def shoot():
         weapon['current_ammo'] -= 1
         last_shot_time = current_time
         
-        # Muzzle Flash Effekt
+        # Verbesserter Muzzle Flash Effekt
         muzzle_flash = Entity(model='sphere', color=color.yellow, scale=0.3, 
                              position=camera.world_position + camera.forward * 2)
+        muzzle_flash.animate_scale(0, duration=0.1)
         destroy(muzzle_flash, delay=0.1)
+        
+        # Zusätzliche Muzzle-Partikel
+        for i in range(5):
+            spark = Entity(
+                model='cube',
+                color=color.orange,
+                scale=0.02,
+                position=camera.world_position + camera.forward * 2 + Vec3(
+                    random.uniform(-0.1, 0.1),
+                    random.uniform(-0.1, 0.1),
+                    random.uniform(-0.1, 0.1)
+                )
+            )
+            spark.animate_position(
+                spark.position + camera.forward * random.uniform(1, 3),
+                duration=0.3
+            )
+            spark.animate_scale(0, duration=0.3)
+            destroy(spark, delay=0.3)
 
 # Update-Funktion für Stamina-System
 def update():
-    global current_stamina, is_sprinting, game_over, is_reloading
+    global current_stamina, is_sprinting, game_over, is_reloading, game_started
+    
+    # Menü-Logik
+    if main_menu.menu_active or main_menu.settings_active or main_menu.highscore_active:
+        return
+    
+    if not game_started:
+        game_started = True
+        main_menu.hide_all_menus()
     
     if paused or game_over:
         return
@@ -571,9 +676,21 @@ def update():
 
 # Eingabe-Funktion für Schießen
 def input(key):
-    global paused, pause_text
+    global paused, pause_text, game_started
+    
+    # Menü-Navigation
+    if main_menu.menu_active or main_menu.settings_active or main_menu.highscore_active:
+        if key == 'escape':
+            if main_menu.settings_active or main_menu.highscore_active:
+                main_menu.show_main_menu()
+        return
     
     if key == 'escape' and not game_over:
+        if not game_started:
+            main_menu.show_main_menu()
+            mouse.locked = False
+            return
+            
         paused = not paused
         if paused:
             # Spiel pausieren
@@ -586,11 +703,11 @@ def input(key):
                 destroy(pause_text)
                 pause_text = None
     
-    if not paused and not game_over and key == 'left mouse down':
+    if not paused and not game_over and game_started and key == 'left mouse down':
         shoot()
     
     # Waffe wechseln
-    if not paused and not game_over:
+    if not paused and not game_over and game_started:
         if key == '1':
             switch_weapon('pistol')
         elif key == '2':
