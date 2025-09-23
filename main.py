@@ -556,6 +556,7 @@ class Enemy(Entity):
         self.last_player_position = player.position
         self.chase_distance = 15
         self.attack_distance = 8
+        self.sight_range = 25  # Kann Spieler aus 25 Einheiten sehen
         
         # Physik-Parameter für realistische Bewegung
         self.velocity = Vec3(0, 0, 0)
@@ -769,9 +770,10 @@ class Enemy(Entity):
         # Schießtimer aktualisieren
         self.shoot_timer += time.dt
         
-        # Schießen wenn Timer abgelaufen und Spieler in Reichweite
+        # Schießen wenn Timer abgelaufen und Spieler sichtbar
         if (self.shoot_timer >= self.shoot_interval and 
-            distance_to_player <= self.attack_distance + 5):
+            distance_to_player <= self.sight_range and
+            self.can_see_player()):
             self.shoot_at_player()
             self.shoot_timer = 0
             self.shoot_interval = random.uniform(1.0, 2.5)  # Schnelleres Schießen
@@ -876,6 +878,29 @@ class Enemy(Entity):
         return (abs(position.x - map_obj.position.x) < map_obj.scale_x + 0.3 and
                 abs(position.z - map_obj.position.z) < map_obj.scale_z + 0.3 and
                 abs(position.y - map_obj.position.y) < map_obj.scale_y + 0.6)
+    
+    def can_see_player(self):
+        """Prüft ob der Feind den Spieler sehen kann (Sichtlinie frei)"""
+        direction_to_player = (player.position - self.position).normalized()
+        distance_to_player = distance(self.position, player.position)
+        
+        # Raycast zur Sichtlinie-Prüfung
+        check_steps = int(distance_to_player * 2)  # Mehr Schritte für genauere Prüfung
+        step_size = distance_to_player / check_steps
+        
+        for i in range(1, check_steps):
+            check_position = self.position + direction_to_player * (step_size * i)
+            
+            # Prüfen ob ein Hindernis die Sicht blockiert
+            for map_obj in map_objects:
+                if map_obj != ground:  # Boden ignorieren
+                    # Prüfen ob der Raycast-Punkt innerhalb eines Objekts liegt
+                    if (abs(check_position.x - map_obj.position.x) < map_obj.scale_x and
+                        abs(check_position.y - map_obj.position.y) < map_obj.scale_y and
+                        abs(check_position.z - map_obj.position.z) < map_obj.scale_z):
+                        return False  # Sicht blockiert
+        
+        return True  # Freie Sicht zum Spieler
     
     def shoot_at_player(self):
         # Richtung zum Spieler berechnen
