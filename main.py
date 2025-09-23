@@ -2,6 +2,7 @@ from ursina import *
 from ursina.prefabs.first_person_controller import FirstPersonController
 import random
 import json
+from menu import MainMenu
 
 # Initialisierung der Ursina-Anwendung
 app = Ursina(
@@ -12,6 +13,10 @@ app = Ursina(
     vsync=True,
     icon=''
 )
+
+# Menü-System
+main_menu = MainMenu()
+game_started = False
 
 # Kamera-Einstellungen für UI
 camera.orthographic = False
@@ -98,7 +103,6 @@ sky = Sky()
 
 # Spieler erstellen (FirstPersonController)
 player = FirstPersonController(position=(0, 1, 0))
-mouse.locked = True
 
 # Pause-System
 paused = False
@@ -521,6 +525,9 @@ def restart_game():
     destroy(restart_button)
     destroy(quit_button)
     
+    # Highscore speichern
+    main_menu.save_highscore(score)
+    
     # Spieler zurücksetzen
     current_hp = max_hp
     current_stamina = max_stamina
@@ -598,8 +605,12 @@ def shoot():
 
 # Update-Funktion für Stamina-System
 def update():
-    global current_stamina, is_sprinting, game_over, is_reloading
+    global current_stamina, is_sprinting, game_over, is_reloading, game_started
     
+    if not game_started:
+        mouse.locked = False
+        return
+
     if paused or game_over:
         return
     
@@ -675,8 +686,13 @@ def update():
 
 # Eingabe-Funktion für Schießen
 def input(key):
-    global paused, pause_text
+    global paused, pause_text, game_started
     
+    if not game_started:
+        if key == 'escape' and main_menu.highscore_active:
+            main_menu.show_main_menu()
+        return
+
     if key == 'escape' and not game_over:
         paused = not paused
         if paused:
@@ -703,6 +719,14 @@ def input(key):
             switch_weapon('shotgun')
         elif key == 'r':
             reload_weapon()
+
+def start_game():
+    global game_started
+    game_started = True
+    main_menu.hide_all_menus()
+    mouse.locked = True
+
+main_menu.start_button.on_click = start_game
 
 # Spiel starten
 app.run()
