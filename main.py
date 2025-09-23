@@ -528,6 +528,15 @@ class Enemy(Entity):
         self.chase_distance = 15
         self.attack_distance = 8
         
+        # Physik-Parameter für realistische Bewegung
+        self.velocity = Vec3(0, 0, 0)
+        self.gravity = -20
+        self.jump_force = 8
+        self.is_grounded = False
+        self.ground_check_distance = 0.1
+        self.jump_cooldown = 0
+        self.max_jump_cooldown = 2.0
+        
         # Kopf des Feindes
         self.head = Entity(
             model='cube',
@@ -683,6 +692,13 @@ class Enemy(Entity):
         # Entfernung zum Spieler berechnen
         distance_to_player = distance(self.position, player.position)
         
+        # Jump-Cooldown verringern
+        if self.jump_cooldown > 0:
+            self.jump_cooldown -= time.dt
+        
+        # Boden-Erkennung
+        self.check_ground()
+        
         # Bewegungslogik
         self.move_timer += time.dt
         
@@ -705,25 +721,21 @@ class Enemy(Entity):
                 self.move_direction = perpendicular
                 self.move_timer = 0
         
-        # Bewegung ausführen
-        new_position = self.position + self.move_direction * self.move_speed * time.dt
+        # Horizontale Bewegung berechnen
+        horizontal_velocity = self.move_direction * self.move_speed
         
-        # Kollisionsprüfung mit Map-Objekten
-        can_move = True
-        for map_obj in map_objects:
-            if map_obj != ground:  # Boden ignorieren
-                # Einfache Kollisionsprüfung
-                if (abs(new_position.x - map_obj.position.x) < (map_obj.scale_x + 1) and
-                    abs(new_position.z - map_obj.position.z) < (map_obj.scale_z + 1)):
-                    can_move = False
-                    break
+        # Kollisionsprüfung und Sprung-Logik
+        obstacle_ahead = self.check_obstacle_ahead(horizontal_velocity)
         
-        if can_move:
-            self.position = new_position
-        else:
-            # Richtung ändern wenn Kollision
-            self.move_direction = Vec3(random.uniform(-1, 1), 0, random.uniform(-1, 1)).normalized()
-            
+        if obstacle_ahead and self.is_grounded and self.jump_cooldown <= 0:
+            # Über Hindernis springen
+            self.velocity.y = self.jump_force
+            self.jump_cooldown = self.max_jump_cooldown
+            self.is_grounded = False
+        
+        # Physik anwenden
+        self.apply_physics(horizontal_velocity)
+        
         # Schießtimer aktualisieren
         self.shoot_timer += time.dt
         
@@ -733,6 +745,107 @@ class Enemy(Entity):
             self.shoot_at_player()
             self.shoot_timer = 0
             self.shoot_interval = random.uniform(1.0, 2.5)  # Schnelleres Schießen
+    
+    def check_ground(self):
+        """Prüft ob der Feind auf dem Boden steht"""
+        # Raycast nach unten
+        ground_position = self.position.y - 0.6 - self.ground_check_distance
+        
+        # Prüfung mit Boden
+        if ground and self.position.y <= ground.position.y + 0.6:
+            self.is_grounded = True
+            if self.velocity.y < 0:
+                self.velocity.y = 0
+            return
+        
+        # Prüfung mit anderen Map-Objekten
+        for map_obj in map_objects:
+            if map_obj != ground:
+                # Prüfen ob Feind auf einem Objekt steht
+                if (abs(self.position.x - map_obj.position.x) < map_obj.scale_x and
+                    abs(self.position.z - map_obj.position.z) < map_obj.scale_z and
+                    self.position.y >= map_obj.position.y + map_obj.scale_y - 0.1 and
+                    self.position.y <= map_obj.position.y + map_obj.scale_y + 0.6):
+                    self.is_grounded = True
+                    if self.velocity.y < 0:
+                        self.velocity.y = 0
+                        self.position.y = map_obj.position.y + map_obj.scale_y + 0.6
+                    return
+        
+        self.is_grounded = False
+    
+    def check_obstacle_ahead(self, horizontal_velocity):
+        """Prüft ob ein Hindernis vor dem Feind ist"""
+        check_distance = 1.5
+        future_position = self.position + horizontal_velocity.normalized() * check_distance
+        
+        for map_obj in map_objects:
+            if map_obj != ground:
+                # Prüfen ob Hindernis im Weg ist
+                if (abs(future_position.x - map_obj.position.x) < map_obj.scale_x + 0.5 and
+                    abs(future_position.z - map_obj.position.z) < map_obj.scale_z + 0.5 and
+                    map_obj.position.y + map_obj.scale_y > self.position.y and
+                    map_obj.position.y < self.position.y + 1.2):
+                    return True
+        return False
+    
+    def apply_physics(self, horizontal_velocity):
+        """Wendet Physik auf den Feind an"""
+        # Schwerkraft anwenden
+        if not self.is_grounded:
+            self.velocity.y += self.gravity * time.dt
+        
+        # Gesamtgeschwindigkeit berechnen
+        total_velocity = Vec3(horizontal_velocity.x, self.velocity.y, horizontal_velocity.z)
+        
+        # Neue Position berechnen
+        new_position = self.position + total_velocity * time.dt
+        
+        # Horizontale Kollisionsprüfung
+        can_move_x = True
+        can_move_z = True
+        
+        # X-Achse prüfen
+        test_pos_x = Vec3(new_position.x, self.position.y, self.position.z)
+        for map_obj in map_objects:
+            if map_obj != ground and self.check_collision_with_object(test_pos_x, map_obj):
+                can_move_x = False
+                break
+        
+        # Z-Achse prüfen
+        test_pos_z = Vec3(self.position.x, self.position.y, new_position.z)
+        for map_obj in map_objects:
+            if map_obj != ground and self.check_collision_with_object(test_pos_z, map_obj):
+                can_move_z = False
+                break
+        
+        # Bewegung anwenden
+        if can_move_x:
+            self.position.x = new_position.x
+        else:
+            # Richtung ändern bei Kollision
+            self.move_direction = Vec3(random.uniform(-1, 1), 0, random.uniform(-1, 1)).normalized()
+        
+        if can_move_z:
+            self.position.z = new_position.z
+        else:
+            # Richtung ändern bei Kollision
+            self.move_direction = Vec3(random.uniform(-1, 1), 0, random.uniform(-1, 1)).normalized()
+        
+        # Y-Position (Vertikale Bewegung)
+        self.position.y = new_position.y
+        
+        # Verhindern, dass Feind unter den Boden fällt
+        if ground and self.position.y < ground.position.y + 0.6:
+            self.position.y = ground.position.y + 0.6
+            self.velocity.y = 0
+            self.is_grounded = True
+    
+    def check_collision_with_object(self, position, map_obj):
+        """Prüft Kollision mit einem Map-Objekt"""
+        return (abs(position.x - map_obj.position.x) < map_obj.scale_x + 0.3 and
+                abs(position.z - map_obj.position.z) < map_obj.scale_z + 0.3 and
+                abs(position.y - map_obj.position.y) < map_obj.scale_y + 0.6)
     
     def shoot_at_player(self):
         # Richtung zum Spieler berechnen
@@ -823,6 +936,7 @@ class Bullet(Entity):
                 
                 # Prüfen ob Welle abgeschlossen
                 if enemies_killed_this_wave >= enemies_per_wave:
+                    global waves_completed_on_map
                     wave_number += 1
                     enemies_killed_this_wave = 0
                     waves_completed_on_map += 1
