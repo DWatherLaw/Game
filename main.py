@@ -103,6 +103,7 @@ sky = Sky()
 
 # Spieler erstellen (FirstPersonController)
 player = FirstPersonController(position=(0, 1, 0))
+player.disable()
 
 # Pause-System
 paused = False
@@ -356,7 +357,7 @@ class Enemy(Entity):
         )
     
     def update(self):
-        if paused:
+        if paused or not game_started:
             return
             
         # Schießtimer aktualisieren
@@ -723,6 +724,7 @@ def start_game():
     game_started = True
     main_menu.hide_all_menus()
     mouse.locked = True
+    player.enable()
 
 main_menu.start_button.on_click = start_game
 
