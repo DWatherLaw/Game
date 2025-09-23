@@ -112,57 +112,61 @@ class Enemy(Entity):
             parent=self
         )
         
-        # Linker Arm (Oberarm)
+        # Linker Arm (Oberarm) - ausgestreckt nach vorne
         self.left_arm = Entity(
             model='cube',
             color=color.dark_gray,
             scale=(0.15, 0.5, 0.15),
-            position=(-0.35, 0.4, 0),
+            position=(-0.25, 0.4, 0.3),
+            rotation=(0, 0, -30),
             parent=self
         )
         
-        # Linker Unterarm
+        # Linker Unterarm - ausgestreckt nach vorne
         self.left_forearm = Entity(
             model='cube',
             color=color.dark_gray,
             scale=(0.12, 0.4, 0.12),
-            position=(-0.35, -0.1, 0),
+            position=(-0.15, 0.2, 0.6),
+            rotation=(0, 0, -15),
             parent=self
         )
         
-        # Linke Hand
+        # Linke Hand - ausgestreckt nach vorne
         self.left_hand = Entity(
             model='cube',
             color=color.light_gray,
             scale=(0.1, 0.15, 0.1),
-            position=(-0.35, -0.35, 0),
+            position=(-0.1, 0.1, 0.8),
             parent=self
         )
         
-        # Rechter Arm (Oberarm)
+        # Rechter Arm (Oberarm) - ausgestreckt nach vorne
         self.right_arm = Entity(
             model='cube',
             color=color.dark_gray,
             scale=(0.15, 0.5, 0.15),
-            position=(0.35, 0.4, 0),
+            position=(0.25, 0.4, 0.3),
+            rotation=(0, 0, 30),
             parent=self
         )
         
-        # Rechter Unterarm
+        # Rechter Unterarm - ausgestreckt nach vorne
         self.right_forearm = Entity(
             model='cube',
             color=color.dark_gray,
             scale=(0.12, 0.4, 0.12),
-            position=(0.35, -0.1, 0),
+            position=(0.15, 0.2, 0.6),
+            rotation=(0, 0, 15),
             parent=self
         )
         
-        # Rechte Hand
+        # Rechte Hand - ausgestreckt nach vorne
         self.right_hand = Entity(
             model='cube',
             color=color.light_gray,
             scale=(0.1, 0.15, 0.1),
-            position=(0.35, -0.35, 0),
+            position=(0.1, 0.1, 0.8),
             parent=self
         )
         
