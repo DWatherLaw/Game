@@ -715,6 +715,7 @@ class Enemy(Entity):
         )
     
     def update(self):
+        global waves_completed_on_map, enemies_spawned_this_wave, enemies_per_wave, wave_number
         if paused or not game_started:
             return
         
@@ -967,7 +968,7 @@ class Bullet(Entity):
                 
                 # Prüfen ob alle Feinde der Welle eliminiert wurden
                 if enemies_killed_this_wave >= enemies_per_wave and len(enemies) == 0:
-                    global waves_completed_on_map, enemies_spawned_this_wave, enemies_per_wave, wave_number
+                    global waves_completed_on_map, enemies_spawned_this_wave
                     wave_number += 1
                     enemies_killed_this_wave = 0
                     enemies_spawned_this_wave = 0
