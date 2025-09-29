@@ -959,7 +959,7 @@ class Bullet(Entity):
         )
         self.speed = weapon_stats['bullet_speed']
         self.damage = weapon_stats['damage']
-        self.lifetime = 2.0
+        self.lifetime = 5.0
         self.direction = camera.forward
         
     def update(self):
@@ -1033,10 +1033,10 @@ class Bullet(Entity):
         # Prüfung auf Kollision mit Map-Objekten
         for map_obj in map_objects:
             if map_obj != ground:  # Boden ignorieren
-                # Verbesserte Kollisionserkennung
-                if (abs(self.position.x - map_obj.position.x) < map_obj.scale_x + 0.1 and
-                    abs(self.position.y - map_obj.position.y) < map_obj.scale_y + 0.1 and
-                    abs(self.position.z - map_obj.position.z) < map_obj.scale_z + 0.1):
+                # Präzisere Kollisionserkennung - kleinere Hitbox
+                if (abs(self.position.x - map_obj.position.x) < map_obj.scale_x - 0.1 and
+                    abs(self.position.y - map_obj.position.y) < map_obj.scale_y - 0.1 and
+                    abs(self.position.z - map_obj.position.z) < map_obj.scale_z - 0.1):
                     destroy(self)
                     return
 
@@ -1050,7 +1050,7 @@ class EnemyBullet(Entity):
             **kwargs
         )
         self.speed = 15
-        self.lifetime = 3.0
+        self.lifetime = 6.0
         self.direction = direction
         
     def update(self):
@@ -1079,10 +1079,10 @@ class EnemyBullet(Entity):
         # Prüfung auf Kollision mit Map-Objekten
         for map_obj in map_objects:
             if map_obj != ground:  # Boden ignorieren
-                # Verbesserte Kollisionserkennung
-                if (abs(self.position.x - map_obj.position.x) < map_obj.scale_x + 0.1 and
-                    abs(self.position.y - map_obj.position.y) < map_obj.scale_y + 0.1 and
-                    abs(self.position.z - map_obj.position.z) < map_obj.scale_z + 0.1):
+                # Präzisere Kollisionserkennung - kleinere Hitbox
+                if (abs(self.position.x - map_obj.position.x) < map_obj.scale_x - 0.1 and
+                    abs(self.position.y - map_obj.position.y) < map_obj.scale_y - 0.1 and
+                    abs(self.position.z - map_obj.position.z) < map_obj.scale_z - 0.1):
                     destroy(self)
                     return
 
