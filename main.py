@@ -537,7 +537,7 @@ class Enemy(Entity):
             scale=(0.6, 1.2, 0.4),  # Torso - schmaler und realistischer
             position=position,
             collider='box',
-            color=color.dark_gray,  # Körperfarbe
+            texture='textures/Witch.png',  # Enemy-Textur verwenden
             **kwargs
         )
         
@@ -567,7 +567,7 @@ class Enemy(Entity):
         # Kopf des Feindes
         self.head = Entity(
             model='cube',
-            color=color.light_gray,
+            texture='textures/Witch.png',
             scale=(0.5, 0.5, 0.5),
             position=(0, 0.85, 0),
             parent=self
@@ -603,7 +603,7 @@ class Enemy(Entity):
         # Linker Arm (Oberarm) - seitlich ausgestreckt
         self.left_arm = Entity(
             model='cube',
-            color=color.dark_gray,
+            texture='textures/Witch.png',
             scale=(0.5, 0.15, 0.15),
             position=(-0.55, 0.4, 0),
             rotation=(0, 0, 0),
@@ -613,7 +613,7 @@ class Enemy(Entity):
         # Linker Unterarm - seitlich ausgestreckt
         self.left_forearm = Entity(
             model='cube',
-            color=color.dark_gray,
+            texture='textures/Witch.png',
             scale=(0.4, 0.12, 0.12),
             position=(-0.9, 0.4, 0),
             rotation=(0, 0, 0),
@@ -632,7 +632,7 @@ class Enemy(Entity):
         # Rechter Arm (Oberarm) - seitlich ausgestreckt
         self.right_arm = Entity(
             model='cube',
-            color=color.dark_gray,
+            texture='textures/Witch.png',
             scale=(0.5, 0.15, 0.15),
             position=(0.55, 0.4, 0),
             rotation=(0, 0, 0),
@@ -642,7 +642,7 @@ class Enemy(Entity):
         # Rechter Unterarm - seitlich ausgestreckt
         self.right_forearm = Entity(
             model='cube',
-            color=color.dark_gray,
+            texture='textures/Witch.png',
             scale=(0.4, 0.12, 0.12),
             position=(0.9, 0.4, 0),
             rotation=(0, 0, 0),
