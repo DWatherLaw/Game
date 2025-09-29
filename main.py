@@ -144,34 +144,33 @@ def create_square_arena(size, map_color):
     """Standard quadratische Arena mit Hindernissen"""
     global ground, map_objects
     
-    # Boden
-    ground = Entity(model='plane', scale=size*2, color=map_color, collider='box')
+    # Boden mit Textur
+    ground = Entity(model='plane', scale=size*2, texture='brick', collider='box')
     map_objects.append(ground)
     
     wall_height = 6
-    wall_color = color.rgb(80, 80, 80)
     
-    # Vier Wände
+    # Vier Wände mit Textur
     walls = [
-        Entity(model='cube', position=(0, wall_height/2, size), scale=(size*2, wall_height, 1), color=wall_color, collider='box'),
-        Entity(model='cube', position=(0, wall_height/2, -size), scale=(size*2, wall_height, 1), color=wall_color, collider='box'),
-        Entity(model='cube', position=(size, wall_height/2, 0), scale=(1, wall_height, size*2), color=wall_color, collider='box'),
-        Entity(model='cube', position=(-size, wall_height/2, 0), scale=(1, wall_height, size*2), color=wall_color, collider='box')
+        Entity(model='cube', position=(0, wall_height/2, size), scale=(size*2, wall_height, 1), texture='white_cube', collider='box'),
+        Entity(model='cube', position=(0, wall_height/2, -size), scale=(size*2, wall_height, 1), texture='white_cube', collider='box'),
+        Entity(model='cube', position=(size, wall_height/2, 0), scale=(1, wall_height, size*2), texture='white_cube', collider='box'),
+        Entity(model='cube', position=(-size, wall_height/2, 0), scale=(1, wall_height, size*2), texture='white_cube', collider='box')
     ]
     map_objects.extend(walls)
     
-    # Zentrale Hindernisse
+    # Zentrale Hindernisse mit Texturen
     obstacles = [
-        Entity(model='cube', position=(0, 1.5, 0), scale=(4, 3, 4), color=color.rgb(100, 100, 100), collider='box'),
-        Entity(model='cube', position=(-10, 1, -10), scale=(3, 2, 3), color=color.rgb(90, 90, 90), collider='box'),
-        Entity(model='cube', position=(10, 1, 10), scale=(3, 2, 3), color=color.rgb(90, 90, 90), collider='box'),
-        Entity(model='cube', position=(-10, 1, 10), scale=(3, 2, 3), color=color.rgb(90, 90, 90), collider='box'),
-        Entity(model='cube', position=(10, 1, -10), scale=(3, 2, 3), color=color.rgb(90, 90, 90), collider='box'),
+        Entity(model='cube', position=(0, 1.5, 0), scale=(4, 3, 4), texture='brick', collider='box'),
+        Entity(model='cube', position=(-10, 1, -10), scale=(3, 2, 3), texture='brick', collider='box'),
+        Entity(model='cube', position=(10, 1, 10), scale=(3, 2, 3), texture='brick', collider='box'),
+        Entity(model='cube', position=(-10, 1, 10), scale=(3, 2, 3), texture='brick', collider='box'),
+        Entity(model='cube', position=(10, 1, -10), scale=(3, 2, 3), texture='brick', collider='box'),
         # Säulen
-        Entity(model='cube', position=(-15, 2.5, 0), scale=(1, 5, 1), color=color.rgb(70, 70, 70), collider='box'),
-        Entity(model='cube', position=(15, 2.5, 0), scale=(1, 5, 1), color=color.rgb(70, 70, 70), collider='box'),
-        Entity(model='cube', position=(0, 2.5, -15), scale=(1, 5, 1), color=color.rgb(70, 70, 70), collider='box'),
-        Entity(model='cube', position=(0, 2.5, 15), scale=(1, 5, 1), color=color.rgb(70, 70, 70), collider='box')
+        Entity(model='cube', position=(-15, 2.5, 0), scale=(1, 5, 1), texture='white_cube', collider='box'),
+        Entity(model='cube', position=(15, 2.5, 0), scale=(1, 5, 1), texture='white_cube', collider='box'),
+        Entity(model='cube', position=(0, 2.5, -15), scale=(1, 5, 1), texture='white_cube', collider='box'),
+        Entity(model='cube', position=(0, 2.5, 15), scale=(1, 5, 1), texture='white_cube', collider='box')
     ]
     map_objects.extend(obstacles)
 
@@ -179,14 +178,13 @@ def create_circle_arena(size, map_color):
     """Kreisförmige Arena mit runden Wänden und konzentrischen Hindernissen"""
     global ground, map_objects
     
-    # Boden
-    ground = Entity(model='plane', scale=size*2, color=map_color, collider='box')
+    # Boden mit Gras-Textur
+    ground = Entity(model='plane', scale=size*2, texture='grass', collider='box')
     map_objects.append(ground)
     
     wall_height = 6
-    wall_color = color.rgb(80, 80, 80)
     
-    # Kreisförmige Wände (viele kleine Segmente)
+    # Kreisförmige Wände (viele kleine Segmente) mit Textur
     segments = 32
     for i in range(segments):
         angle = (i / segments) * 2 * 3.14159
@@ -197,20 +195,20 @@ def create_circle_arena(size, map_color):
             model='cube',
             position=(x, wall_height/2, z),
             scale=(1.5, wall_height, 1.5),
-            color=wall_color,
+            texture='white_cube',
             collider='box',
             rotation_y=angle * 57.2958
         )
         map_objects.append(wall)
     
-    # Konzentrische Hindernisse
+    # Konzentrische Hindernisse mit Texturen
     inner_obstacles = []
     # Innerer Ring
     for i in range(8):
         angle = (i / 8) * 2 * 3.14159
         x = (size * 0.4) * math.cos(angle)
         z = (size * 0.4) * math.sin(angle)
-        obstacle = Entity(model='cube', position=(x, 1, z), scale=(2, 2, 2), color=color.rgb(100, 80, 80), collider='box')
+        obstacle = Entity(model='cube', position=(x, 1, z), scale=(2, 2, 2), texture='brick', collider='box')
         inner_obstacles.append(obstacle)
     
     # Mittlerer Ring
@@ -218,7 +216,7 @@ def create_circle_arena(size, map_color):
         angle = (i / 12) * 2 * 3.14159
         x = (size * 0.7) * math.cos(angle)
         z = (size * 0.7) * math.sin(angle)
-        obstacle = Entity(model='cube', position=(x, 0.5, z), scale=(1.5, 1, 1.5), color=color.rgb(80, 100, 80), collider='box')
+        obstacle = Entity(model='cube', position=(x, 0.5, z), scale=(1.5, 1, 1.5), texture='grass', collider='box')
         inner_obstacles.append(obstacle)
     
     map_objects.extend(inner_obstacles)
@@ -227,43 +225,42 @@ def create_maze_arena(size, map_color):
     """Komplexes Labyrinth mit vielen Gängen"""
     global ground, map_objects
     
-    # Boden
-    ground = Entity(model='plane', scale=size*2, color=map_color, collider='box')
+    # Boden mit Brick-Textur für Labyrinth-Feeling
+    ground = Entity(model='plane', scale=size*2, texture='brick', collider='box')
     map_objects.append(ground)
     
     wall_height = 6
-    wall_color = color.rgb(60, 60, 60)
     
-    # Äußere Wände
+    # Äußere Wände mit Textur
     outer_walls = [
-        Entity(model='cube', position=(0, wall_height/2, size), scale=(size*2, wall_height, 1), color=wall_color, collider='box'),
-        Entity(model='cube', position=(0, wall_height/2, -size), scale=(size*2, wall_height, 1), color=wall_color, collider='box'),
-        Entity(model='cube', position=(size, wall_height/2, 0), scale=(1, wall_height, size*2), color=wall_color, collider='box'),
-        Entity(model='cube', position=(-size, wall_height/2, 0), scale=(1, wall_height, size*2), color=wall_color, collider='box')
+        Entity(model='cube', position=(0, wall_height/2, size), scale=(size*2, wall_height, 1), texture='white_cube', collider='box'),
+        Entity(model='cube', position=(0, wall_height/2, -size), scale=(size*2, wall_height, 1), texture='white_cube', collider='box'),
+        Entity(model='cube', position=(size, wall_height/2, 0), scale=(1, wall_height, size*2), texture='white_cube', collider='box'),
+        Entity(model='cube', position=(-size, wall_height/2, 0), scale=(1, wall_height, size*2), texture='white_cube', collider='box')
     ]
     map_objects.extend(outer_walls)
     
-    # Komplexes Labyrinth-System
+    # Komplexes Labyrinth-System mit Texturen
     maze_walls = [
         # Hauptkorridore (horizontal)
-        Entity(model='cube', position=(-12, wall_height/2, 0), scale=(8, wall_height, 1), color=wall_color, collider='box'),
-        Entity(model='cube', position=(12, wall_height/2, 8), scale=(8, wall_height, 1), color=wall_color, collider='box'),
-        Entity(model='cube', position=(0, wall_height/2, -12), scale=(12, wall_height, 1), color=wall_color, collider='box'),
-        Entity(model='cube', position=(-8, wall_height/2, 12), scale=(16, wall_height, 1), color=wall_color, collider='box'),
-        Entity(model='cube', position=(8, wall_height/2, -8), scale=(12, wall_height, 1), color=wall_color, collider='box'),
+        Entity(model='cube', position=(-12, wall_height/2, 0), scale=(8, wall_height, 1), texture='white_cube', collider='box'),
+        Entity(model='cube', position=(12, wall_height/2, 8), scale=(8, wall_height, 1), texture='white_cube', collider='box'),
+        Entity(model='cube', position=(0, wall_height/2, -12), scale=(12, wall_height, 1), texture='white_cube', collider='box'),
+        Entity(model='cube', position=(-8, wall_height/2, 12), scale=(16, wall_height, 1), texture='white_cube', collider='box'),
+        Entity(model='cube', position=(8, wall_height/2, -8), scale=(12, wall_height, 1), texture='white_cube', collider='box'),
         
         # Hauptkorridore (vertikal)
-        Entity(model='cube', position=(0, wall_height/2, 4), scale=(1, wall_height, 8), color=wall_color, collider='box'),
-        Entity(model='cube', position=(-15, wall_height/2, -8), scale=(1, wall_height, 12), color=wall_color, collider='box'),
-        Entity(model='cube', position=(15, wall_height/2, -4), scale=(1, wall_height, 16), color=wall_color, collider='box'),
-        Entity(model='cube', position=(8, wall_height/2, 15), scale=(1, wall_height, 12), color=wall_color, collider='box'),
-        Entity(model='cube', position=(-8, wall_height/2, -15), scale=(1, wall_height, 8), color=wall_color, collider='box'),
+        Entity(model='cube', position=(0, wall_height/2, 4), scale=(1, wall_height, 8), texture='white_cube', collider='box'),
+        Entity(model='cube', position=(-15, wall_height/2, -8), scale=(1, wall_height, 12), texture='white_cube', collider='box'),
+        Entity(model='cube', position=(15, wall_height/2, -4), scale=(1, wall_height, 16), texture='white_cube', collider='box'),
+        Entity(model='cube', position=(8, wall_height/2, 15), scale=(1, wall_height, 12), texture='white_cube', collider='box'),
+        Entity(model='cube', position=(-8, wall_height/2, -15), scale=(1, wall_height, 8), texture='white_cube', collider='box'),
         
         # Kleine Kammern und Hindernisse
-        Entity(model='cube', position=(-20, wall_height/2, 20), scale=(6, wall_height, 6), color=wall_color, collider='box'),
-        Entity(model='cube', position=(20, wall_height/2, -20), scale=(6, wall_height, 6), color=wall_color, collider='box'),
-        Entity(model='cube', position=(-4, wall_height/2, -4), scale=(4, wall_height, 4), color=wall_color, collider='box'),
-        Entity(model='cube', position=(4, wall_height/2, 4), scale=(4, wall_height, 4), color=wall_color, collider='box')
+        Entity(model='cube', position=(-20, wall_height/2, 20), scale=(6, wall_height, 6), texture='brick', collider='box'),
+        Entity(model='cube', position=(20, wall_height/2, -20), scale=(6, wall_height, 6), texture='brick', collider='box'),
+        Entity(model='cube', position=(-4, wall_height/2, -4), scale=(4, wall_height, 4), texture='brick', collider='box'),
+        Entity(model='cube', position=(4, wall_height/2, 4), scale=(4, wall_height, 4), texture='brick', collider='box')
     ]
     map_objects.extend(maze_walls)
 
