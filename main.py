@@ -959,7 +959,7 @@ class Bullet(Entity):
         )
         self.speed = weapon_stats['bullet_speed']
         self.damage = weapon_stats['damage']
-        self.lifetime = 5.0
+        self.lifetime = 10.0
         self.direction = camera.forward
         
     def update(self):
@@ -977,7 +977,7 @@ class Bullet(Entity):
         # Kollisionsprüfung mit Feinden
         for enemy in enemies[:]:  # Kopie der Liste verwenden
             dist = distance(self.position, enemy.position)
-            if dist < 1.5:  # Kollision mit Feind
+            if dist < 2.0:  # Vergrößerte Kollision mit Feind
                 
                 # Partikeleffekte erstellen
                 ParticleSystem.create_blood_effect(enemy.position)
@@ -1033,10 +1033,10 @@ class Bullet(Entity):
         # Prüfung auf Kollision mit Map-Objekten
         for map_obj in map_objects:
             if map_obj != ground:  # Boden ignorieren
-                # Präzisere Kollisionserkennung - kleinere Hitbox
-                if (abs(self.position.x - map_obj.position.x) < map_obj.scale_x - 0.1 and
-                    abs(self.position.y - map_obj.position.y) < map_obj.scale_y - 0.1 and
-                    abs(self.position.z - map_obj.position.z) < map_obj.scale_z - 0.1):
+                # Noch präzisere Kollisionserkennung - deutlich kleinere Hitbox
+                if (abs(self.position.x - map_obj.position.x) < map_obj.scale_x - 0.3 and
+                    abs(self.position.y - map_obj.position.y) < map_obj.scale_y - 0.3 and
+                    abs(self.position.z - map_obj.position.z) < map_obj.scale_z - 0.3):
                     destroy(self)
                     return
 
@@ -1050,7 +1050,7 @@ class EnemyBullet(Entity):
             **kwargs
         )
         self.speed = 15
-        self.lifetime = 6.0
+        self.lifetime = 12.0
         self.direction = direction
         
     def update(self):
@@ -1079,10 +1079,10 @@ class EnemyBullet(Entity):
         # Prüfung auf Kollision mit Map-Objekten
         for map_obj in map_objects:
             if map_obj != ground:  # Boden ignorieren
-                # Präzisere Kollisionserkennung - kleinere Hitbox
-                if (abs(self.position.x - map_obj.position.x) < map_obj.scale_x - 0.1 and
-                    abs(self.position.y - map_obj.position.y) < map_obj.scale_y - 0.1 and
-                    abs(self.position.z - map_obj.position.z) < map_obj.scale_z - 0.1):
+                # Noch präzisere Kollisionserkennung - deutlich kleinere Hitbox
+                if (abs(self.position.x - map_obj.position.x) < map_obj.scale_x - 0.3 and
+                    abs(self.position.y - map_obj.position.y) < map_obj.scale_y - 0.3 and
+                    abs(self.position.z - map_obj.position.z) < map_obj.scale_z - 0.3):
                     destroy(self)
                     return
 
