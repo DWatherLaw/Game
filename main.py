@@ -959,7 +959,7 @@ class Bullet(Entity):
         )
         self.speed = weapon_stats['bullet_speed']
         self.damage = weapon_stats['damage']
-        self.lifetime = 10.0
+        self.lifetime = 20.0
         self.direction = camera.forward
         
     def update(self):
@@ -977,7 +977,7 @@ class Bullet(Entity):
         # Kollisionsprüfung mit Feinden
         for enemy in enemies[:]:  # Kopie der Liste verwenden
             dist = distance(self.position, enemy.position)
-            if dist < 2.0:  # Vergrößerte Kollision mit Feind
+            if dist < 1.5:  # Optimierte Kollision mit Feind für Fernkampf
                 
                 # Partikeleffekte erstellen
                 ParticleSystem.create_blood_effect(enemy.position)
@@ -1033,10 +1033,10 @@ class Bullet(Entity):
         # Prüfung auf Kollision mit Map-Objekten
         for map_obj in map_objects:
             if map_obj != ground:  # Boden ignorieren
-                # Noch präzisere Kollisionserkennung - deutlich kleinere Hitbox
-                if (abs(self.position.x - map_obj.position.x) < map_obj.scale_x - 0.3 and
-                    abs(self.position.y - map_obj.position.y) < map_obj.scale_y - 0.3 and
-                    abs(self.position.z - map_obj.position.z) < map_obj.scale_z - 0.3):
+                # Weniger aggressive Kollisionserkennung für bessere Fernkampf-Fähigkeiten
+                if (abs(self.position.x - map_obj.position.x) < map_obj.scale_x - 0.8 and
+                    abs(self.position.y - map_obj.position.y) < map_obj.scale_y - 0.8 and
+                    abs(self.position.z - map_obj.position.z) < map_obj.scale_z - 0.8):
                     destroy(self)
                     return
 
