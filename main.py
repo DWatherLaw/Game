@@ -532,13 +532,27 @@ reload_text = Text('', position=(0, -0.2), scale=2, color=color.red, parent=came
 # Enemy-Klasse
 class Enemy(Entity):
     def __init__(self, position, **kwargs):
-        super().__init__(
-            model='textures/Enemies/Witch/scene.gltf',
-            scale=0.01,  # GLTF-Modell ist sehr groß, daher stark verkleinern
-            position=position,
-            collider='box',
-            **kwargs
-        )
+        # Versuche GLTF-Modell zu laden, falls das fehlschlägt verwende Würfel
+        try:
+            super().__init__(
+                model='textures/Enemies/Witch/scene.gltf',
+                scale=0.01,  # GLTF-Modell ist sehr groß, daher stark verkleinern
+                position=position,
+                collider='box',
+                **kwargs
+            )
+        except Exception as e:
+            print(f"Fehler beim Laden des GLTF-Modells: {e}")
+            print("Verwende Fallback-Würfel-Modell für Feinde")
+            # Fallback auf einfaches Würfel-Modell mit Hexen-Textur
+            super().__init__(
+                model='cube',
+                scale=(0.6, 1.2, 0.4),
+                position=position,
+                collider='box',
+                texture='textures/Enemies/Witch/textures/Witch_baseColor.png',
+                **kwargs
+            )
         
         # Schießparameter
         self.shoot_timer = 0
