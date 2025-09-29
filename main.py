@@ -533,11 +533,10 @@ reload_text = Text('', position=(0, -0.2), scale=2, color=color.red, parent=came
 class Enemy(Entity):
     def __init__(self, position, **kwargs):
         super().__init__(
-            model='cube',
-            scale=(0.6, 1.2, 0.4),  # Torso - schmaler und realistischer
+            model='textures/Enemies/Witch/scene.gltf',
+            scale=0.01,  # GLTF-Modell ist sehr groß, daher stark verkleinern
             position=position,
             collider='box',
-            texture='textures/Witch.png',  # Enemy-Textur verwenden
             **kwargs
         )
         
@@ -563,154 +562,6 @@ class Enemy(Entity):
         self.ground_check_distance = 0.1
         self.jump_cooldown = 0
         self.max_jump_cooldown = 2.0
-        
-        # Kopf des Feindes
-        self.head = Entity(
-            model='cube',
-            texture='textures/Witch.png',
-            scale=(0.5, 0.5, 0.5),
-            position=(0, 0.85, 0),
-            parent=self
-        )
-        
-        # Gesicht - Linkes Auge
-        self.left_eye = Entity(
-            model='cube',
-            color=color.black,
-            scale=(0.08, 0.08, 0.08),
-            position=(-0.12, 0.9, 0.26),
-            parent=self
-        )
-        
-        # Gesicht - Rechtes Auge
-        self.right_eye = Entity(
-            model='cube',
-            color=color.black,
-            scale=(0.08, 0.08, 0.08),
-            position=(0.12, 0.9, 0.26),
-            parent=self
-        )
-        
-        # Gesicht - Mund
-        self.mouth = Entity(
-            model='cube',
-            color=color.black,
-            scale=(0.15, 0.05, 0.05),
-            position=(0, 0.75, 0.26),
-            parent=self
-        )
-        
-        # Linker Arm (Oberarm) - seitlich ausgestreckt
-        self.left_arm = Entity(
-            model='cube',
-            texture='textures/Witch.png',
-            scale=(0.5, 0.15, 0.15),
-            position=(-0.55, 0.4, 0),
-            rotation=(0, 0, 0),
-            parent=self
-        )
-        
-        # Linker Unterarm - seitlich ausgestreckt
-        self.left_forearm = Entity(
-            model='cube',
-            texture='textures/Witch.png',
-            scale=(0.4, 0.12, 0.12),
-            position=(-0.9, 0.4, 0),
-            rotation=(0, 0, 0),
-            parent=self
-        )
-        
-        # Linke Hand - seitlich ausgestreckt
-        self.left_hand = Entity(
-            model='cube',
-            color=color.light_gray,
-            scale=(0.15, 0.1, 0.1),
-            position=(-1.15, 0.4, 0),
-            parent=self
-        )
-        
-        # Rechter Arm (Oberarm) - seitlich ausgestreckt
-        self.right_arm = Entity(
-            model='cube',
-            texture='textures/Witch.png',
-            scale=(0.5, 0.15, 0.15),
-            position=(0.55, 0.4, 0),
-            rotation=(0, 0, 0),
-            parent=self
-        )
-        
-        # Rechter Unterarm - seitlich ausgestreckt
-        self.right_forearm = Entity(
-            model='cube',
-            texture='textures/Witch.png',
-            scale=(0.4, 0.12, 0.12),
-            position=(0.9, 0.4, 0),
-            rotation=(0, 0, 0),
-            parent=self
-        )
-        
-        # Rechte Hand - seitlich ausgestreckt
-        self.right_hand = Entity(
-            model='cube',
-            color=color.light_gray,
-            scale=(0.15, 0.1, 0.1),
-            position=(1.15, 0.4, 0),
-            parent=self
-        )
-        
-        # Linkes Bein (Oberschenkel)
-        self.left_leg = Entity(
-            model='cube',
-            color=color.gray,
-            scale=(0.2, 0.5, 0.2),
-            position=(-0.15, -0.4, 0),
-            parent=self
-        )
-        
-        # Linkes Schienbein
-        self.left_shin = Entity(
-            model='cube',
-            color=color.gray,
-            scale=(0.18, 0.5, 0.18),
-            position=(-0.15, -0.9, 0),
-            parent=self
-        )
-        
-        # Rechtes Bein (Oberschenkel)
-        self.right_leg = Entity(
-            model='cube',
-            color=color.gray,
-            scale=(0.2, 0.5, 0.2),
-            position=(0.15, -0.4, 0),
-            parent=self
-        )
-        
-        # Rechtes Schienbein
-        self.right_shin = Entity(
-            model='cube',
-            color=color.gray,
-            scale=(0.18, 0.5, 0.18),
-            position=(0.15, -0.9, 0),
-            parent=self
-        )
-        
-        # Linker Fuß
-        self.left_foot = Entity(
-            model='cube',
-            color=color.black,
-            scale=(0.25, 0.1, 0.4),
-            position=(-0.15, -1.2, 0.1),
-            parent=self
-        )
-        
-        # Rechter Fuß
-        self.right_foot = Entity(
-            model='cube',
-            color=color.black,
-            scale=(0.25, 0.1, 0.4),
-            position=(0.15, -1.2, 0.1),
-            parent=self
-        )
     
     def update(self):
         global waves_completed_on_map, enemies_spawned_this_wave, enemies_per_wave, wave_number
