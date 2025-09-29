@@ -546,7 +546,7 @@ class Enemy(Entity):
         
         # Schießparameter
         self.shoot_timer = 0
-        self.shoot_interval = random.uniform(1.5, 3.0)  # Schießt alle 1.5-3 Sekunden
+        self.shoot_interval = random.uniform(1.0, 2.0)  # Schießt alle 1.0-2.0 Sekunden - aggressiver
         
         # Bewegungsparameter
         self.move_speed = random.uniform(2, 4)
@@ -556,7 +556,7 @@ class Enemy(Entity):
         self.last_player_position = player.position
         self.chase_distance = 15
         self.attack_distance = 8
-        self.sight_range = 25  # Kann Spieler aus 25 Einheiten sehen
+        self.sight_range = 35  # Kann Spieler aus 35 Einheiten sehen - größere Reichweite
         
         # Physik-Parameter für realistische Bewegung
         self.velocity = Vec3(0, 0, 0)
@@ -776,7 +776,7 @@ class Enemy(Entity):
             self.can_see_player()):
             self.shoot_at_player()
             self.shoot_timer = 0
-            self.shoot_interval = random.uniform(1.0, 2.5)  # Schnelleres Schießen
+            self.shoot_interval = random.uniform(0.8, 1.8)  # Noch schnelleres und tödlicheres Schießen
     
     def check_ground(self):
         """Prüft ob der Feind auf dem Boden steht"""
@@ -1049,8 +1049,8 @@ class EnemyBullet(Entity):
             scale=0.08,
             **kwargs
         )
-        self.speed = 15
-        self.lifetime = 12.0
+        self.speed = 20
+        self.lifetime = 25.0
         self.direction = direction
         
     def update(self):
@@ -1067,7 +1067,7 @@ class EnemyBullet(Entity):
         dist = distance(self.position, player.position)
         if dist < 1.0:  # Spieler getroffen
             global current_hp
-            current_hp -= 10  # 10 HP Schaden
+            current_hp -= 25  # 25 HP Schaden - tödlicher für Fernkampf
             current_hp = max(0, current_hp)
             
             # Schaden-Partikeleffekt
@@ -1079,10 +1079,10 @@ class EnemyBullet(Entity):
         # Prüfung auf Kollision mit Map-Objekten
         for map_obj in map_objects:
             if map_obj != ground:  # Boden ignorieren
-                # Noch präzisere Kollisionserkennung - deutlich kleinere Hitbox
-                if (abs(self.position.x - map_obj.position.x) < map_obj.scale_x - 0.3 and
-                    abs(self.position.y - map_obj.position.y) < map_obj.scale_y - 0.3 and
-                    abs(self.position.z - map_obj.position.z) < map_obj.scale_z - 0.3):
+                # Weniger aggressive Kollisionserkennung für bessere Fernkampf-Fähigkeiten
+                if (abs(self.position.x - map_obj.position.x) < map_obj.scale_x - 0.8 and
+                    abs(self.position.y - map_obj.position.y) < map_obj.scale_y - 0.8 and
+                    abs(self.position.z - map_obj.position.z) < map_obj.scale_z - 0.8):
                     destroy(self)
                     return
 
