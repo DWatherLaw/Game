@@ -5,7 +5,7 @@ Wir erstellen einen einfachen "3D-Schießstand" aus der Ego-Perspektive. Der Spi
 
 Ausgewählte Technologien:
 *   Programmiersprache: Python
-*   Hauptbibliothek (Engine): Ursina
+*   Hauptbibliothek (Engine): GODOT
 
 ---
 
