@@ -547,10 +547,11 @@ class Enemy(Entity):
             # Fallback auf einfaches Würfel-Modell mit Hexen-Textur
             super().__init__(
                 model='cube',
-                scale=(0.6, 1.2, 0.4),
+                scale=(0.8, 1.8, 0.6),  # Größer und realistischer
                 position=position,
                 collider='box',
                 texture='textures/Enemies/Witch/textures/Witch_baseColor.png',
+                color=color.white,  # Weiß für bessere Textur-Darstellung
                 **kwargs
             )
         
