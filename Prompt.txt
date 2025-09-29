@@ -4,7 +4,7 @@ Allgemeine Projektidee:
 Wir erstellen einen einfachen "3D-Schießstand" aus der Ego-Perspektive. Der Spieler befindet sich in einer geschlossenen Arena und kann auf erscheinende Ziele schießen. Das Ziel ist es, einen funktionierenden Basis-Prototyp zu erstellen.
 
 Ausgewählte Technologien:
-*   Programmiersprache: Python
+*   Programmiersprache: C#
 *   Hauptbibliothek (Engine): GODOT
 
 ---
@@ -46,5 +46,3 @@ Bitte erstelle zwei Dateien: `requirements.txt` und `main.py`.
     *   Wenn die Kugel eine Wand oder den Boden trifft, soll nur die Kugel zerstört werden.
     *   Die Kugel soll sich nach 2 Sekunden Flugzeit selbst zerstören, falls sie nichts getroffen hat.
 
-**2.5. Starten des Spiels**
-*   Rufe ganz am Ende der Datei die Methode `app.run()` auf, um die Spiel-Schleife (Game-Loop) zu starten.
