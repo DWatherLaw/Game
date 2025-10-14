@@ -1,0 +1,60 @@
+Hallo Aider,
+
+lass uns mit unserem 3D-Shooter anfangen. Wie besprochen, verwenden wir Python und die Bibliothek Ursina Engine.
+
+Hier ist die Aufgabe für den ersten funktionierenden Prototyp.
+
+Projekt: 3D-Shooter mit Ursina
+Phasen-Name: "Basis-Arena"
+
+Gesamtaufgabe: Erstelle eine einfache Spielszene, in der ein Spieler sich bewegen, schießen und statische Gegner mit verschiedenen Waffen ausschalten kann.
+
+1. Die Arena
+Erstelle eine flache Bodenfläche (Ground Plane) mit der ungefähren Größe 50x50. Textur: Standard, z.B. grass.
+Platziere an den Rändern vier Wände, um eine geschlossene "Box" zu bilden. Textur der Wände: brick.
+Alle Arena-Objekte (Boden, Wände) müssen Collider haben, damit der Spieler nicht durch sie hindurchgehen kann.
+2. Der Spieler
+Verwende das fertige Prefab FirstPersonController von Ursina.
+Die Steuerung soll dem Standard entsprechen: WASD für die Bewegung, Leertaste zum Springen, Maus für die Kamera/Sicht.
+Der Spieler soll einen Lebenspunkte-Parameter (HP) haben, z.B. 100.
+3. Die Gegner
+Erstelle 4 Gegner.
+Fürs Erste können sie einfache Würfel sein (model='cube'), die rot eingefärbt sind (color=color.red), damit man sie gut erkennen kann.
+Platziere sie an zufälligen Positionen innerhalb der Arena.
+Die Gegner sind statische Ziele. Vorerst müssen sie sich nicht bewegen oder angreifen.
+Jeder Gegner hat 100 HP. Bei einem Treffer erleiden sie Schaden, und wenn ihre HP <= 0 sind, verschwinden sie aus der Szene.
+4. Die Waffen <-- (ИЗМЕНЕНИЕ ЗДЕСЬ)
+Implementiere 4 Waffentypen. Um die Waffen besser erkennbar zu machen, verwende nicht nur einen einzigen Würfel. Kombiniere stattdessen mehrere einfache Modelle aus der Ursina-Bibliothek (wie cube, cylinder, quad), um die Form einer Waffe anzudeuten.
+
+Messer:
+Typ: Nahkampf (Melee)
+Schaden: 50
+Reichweite: Sehr kurz (ca. 2.5 Einheiten)
+Feuerrate: Schnell (Cooldown ~0.5 Sek.)
+Pistole:
+Typ: Mittlere Distanz
+Schaden: 25
+Reichweite: Mittel (ca. 50 Einheiten)
+Feuerrate: Mittel (Cooldown ~0.4 Sek.)
+Sturmgewehr:
+Typ: Hohe Reichweite
+Schaden: 15
+Reichweite: Hoch (ca. 100 Einheiten)
+Feuerrate: Sehr hoch (Cooldown ~0.1 Sek.), vollautomatisch.
+Scharfschützengewehr:
+Typ: Sehr hohe Reichweite
+Schaden: 100 (tötet mit einem Schuss)
+Reichweite: Sehr hoch (ca. 200 Einheiten)
+Feuerrate: Langsam (Cooldown ~1.5 Sek.)
+Spezialfunktion: Beim Drücken der rechten Maustaste soll ein Zielmodus (Zoom durch Verringerung des Kamera-FOV) aktiviert werden.
+5. Waffenmechaniken
+Das Schießen erfolgt durch Drücken der linken Maustaste.
+Die Schussmechanik soll mittels raycast (ein Strahl, der von der Kamera ausgeht) implementiert werden.
+Der Waffenwechsel soll über das Mausrad und/oder die Tasten 1, 2, 3, 4 erfolgen.
+Das Waffenmodell soll in der Hand des Spielers sichtbar sein (an die UI-Kamera angehängt) und sich entsprechend der Auswahl ändern.
+In der Arena sollen auch die physischen Modelle dieser vier Waffen platziert werden (vorerst nur zur Dekoration, das Aufheben implementieren wir später).
+6. Benutzeroberfläche (UI)
+In der unteren rechten Ecke des Bildschirms soll die aktuelle HP des Spielers als Text angezeigt werden, z.B.: HP: 100.
+Zusammenfassung: Am Ende sollten wir eine Szene haben, in der wir herumlaufen, Waffen wechseln und auf rote Würfel schießen können, die daraufhin verschwinden. In der Ecke wird unsere Gesundheit angezeigt.
+
+Lass uns diese Basis schaffen, danach können wir sie gemeinsam verbessern und Dinge wie Gegner-KI, Sounds, Nachladen und bessere Modelle hinzufügen. Viel Erfolg
